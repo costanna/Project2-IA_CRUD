@@ -1,5 +1,7 @@
 # 🚀 Proyecto: Sistema de Gestión Personalizado
 
+![Banner Proyectos](https://github.com/user-attachments/assets/5096963a-c457-458b-bbec-b9daf31a3b6d)
+
 ## 📋 Planteamiento
 
 Eres parte de un equipo de desarrollo en una consultora tecnológica especializada en soluciones para pequeñas y medianas empresas. Tu equipo ha sido contactado por un emprendedor local que necesita digitalizar y optimizar la gestión de su negocio.
