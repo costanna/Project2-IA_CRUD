@@ -1,6 +1,6 @@
 # 🚀 Proyecto: Sistema de Gestión Personalizado
 
-![Banner Proyectos](https://github.com/user-attachments/assets/5096963a-c457-458b-bbec-b9daf31a3b6d)
+![Banner Proyectos](https://github.com/user-attachments/assets/94ecebe4-ceba-47ae-8f3c-af14bdfe8606)
 
 ## 📋 Planteamiento
 
