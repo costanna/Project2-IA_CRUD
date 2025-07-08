@@ -77,30 +77,10 @@ Se estiman dos semanas para el desarrollo del prototipo funcional.
 - Mantén la flexibilidad en tu diseño para futuras expansiones o cambios en el negocio.
 - Prioriza la seguridad y la eficiencia en tu implementación.
 
-## 🌟 Evaluacion
-Competencia:  Gestionar eficientemente proyectos de desarrollo con herramientas de control de versiones
-- Uso de github, gitlab o bitbucket
-- Conectar repo local al remoto
-- Uso de gitflow methodology
-- Uso de commits descriptivos
-- Uso apropiado de ramas
-- Uso de nomenclatura en commits
-- Uso de nomenclatura en ramas
-
-Competencia: Ser capaz de desarrollar un programa en Python
-- Uso de Control de errores (cláusula try/except)
-- Uso de herramientas de logger
-- Uso de frameworks (FastAPI, Flask, Django)
-- Uso de librerias
-- Uso de  Entornos virtuales (venv, conda, virtualenv)
-- Uso de Archivo de dependencias (requirements.txt)
-  
-Competencia: Diseñar y gestionar bases de datos de manera eficiente
-- Uso de Modelado de datos
-- Uso de Normalización de datos
-  
-Competencia:  Implementar tests para garantizar la calidad del software
-- Uso de Test Unitarios
-- Uso de Test de Integración
+## 🌟 Competencias:
+- Gestionar eficientemente proyectos de desarrollo con herramientas de control de versiones
+- Ser capaz de desarrollar un programa en Python
+- Diseñar y gestionar bases de datos de manera eficiente
+- Implementar tests para garantizar la calidad del software
 
 ¡Buena suerte con tu proyecto! 🍀
