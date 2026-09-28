@@ -199,6 +199,25 @@ button:disabled {
   font-size: 0.9rem;
 }
 
+.notifications {
+  margin: 0;
+  padding-left: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--color-primary);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
 .table-wrap {
   overflow-x: auto;
 }
