@@ -46,6 +46,10 @@ def on_startup() -> None:
     # de seguridad para entornos de desarrollo/tests sin migraciones.
     Base.metadata.create_all(bind=engine)
     logger.info("%s iniciada en entorno '%s'", settings.app_name, settings.environment)
+    if settings.cors_origin_list:
+        logger.info("CORS permitido para: %s", ", ".join(settings.cors_origin_list))
+    else:
+        logger.warning("CORS_ORIGINS esta vacia: el navegador bloqueara las peticiones del frontend.")
 
 
 @app.get("/health", tags=["health"])
