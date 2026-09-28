@@ -1,78 +1,150 @@
-# 🚀 Proyecto: Sistema de Gestión Personalizado
+# 🎓 Academia F5 — Sistema de Gestión Académica
 
 ![Banner Proyectos](https://github.com/user-attachments/assets/94ecebe4-ceba-47ae-8f3c-af14bdfe8606)
 
 ## 📋 Planteamiento
 
-Eres parte de un equipo de desarrollo en una consultora tecnológica especializada en soluciones para pequeñas y medianas empresas. Tu equipo ha sido contactado por un emprendedor local que necesita digitalizar y optimizar la gestión de su negocio.
+Eres parte de un equipo de desarrollo en una consultora tecnológica especializada en soluciones para pequeñas y medianas empresas. Un centro educativo necesita digitalizar y optimizar la gestión de estudiantes, profesores, cursos, matrículas y notas, reemplazando hojas de cálculo manuales.
 
-El cliente puede tener cualquier tipo de negocio: una escuela, una tienda en línea, un gimnasio, un restaurante, etc. El desafío es crear una solución personalizada que se adapte a las necesidades específicas del negocio elegido.
+Este repositorio implementa esa solución: una **API REST** (FastAPI + PostgreSQL) y un **frontend web** (React + TypeScript) para gestionar el día a día de la academia.
+
+## 🧱 Stack técnico
+
+| Capa | Tecnología |
+|---|---|
+| Backend | Python 3.12, FastAPI, SQLAlchemy 2.0, Alembic |
+| Base de datos | PostgreSQL (producción) / SQLite (tests) |
+| Autenticación | JWT (`python-jose`) + roles (`admin`, `teacher`, `student`) |
+| Tiempo real | WebSockets (notificación de notas nuevas) |
+| Frontend | React 18 + TypeScript + Vite + React Router |
+| Tests | pytest (unit + integración), 91% cobertura en `app/` |
+| Calidad de código | black, isort, flake8, pre-commit |
+| CI/CD | GitHub Actions (lint + tests con PostgreSQL real, build de frontend) |
+| Contenerización | Docker + docker-compose (db + backend + frontend) |
+
+## 🗂️ Estructura del repositorio
+
+```
+backend/          API REST (FastAPI) — ver backend/app/
+  app/
+    core/         configuración, seguridad (JWT), cache, logging
+    models/       entidades SQLAlchemy (7 tablas)
+    schemas/      DTOs Pydantic (entrada/salida de la API)
+    repositories/ acceso a datos (patrón Repository)
+    services/     lógica de negocio
+    routers/      endpoints REST + WebSocket
+  alembic/        migraciones de base de datos
+  tests/          unit/ e integration/
+frontend/         SPA React + Vite que consume la API
+docs/             diagrama ER, documentación de API, Kanban, retrospectiva, ADRs
+.github/workflows/ci.yml   pipeline de CI
+docker-compose.yml         levanta todo el stack con un comando
+```
 
 ## 🎯 Objetivo
 
-Desarrollar una API REST y una base de datos SQL que permitan al cliente gestionar eficientemente su negocio, reemplazando los métodos manuales actuales y preparando el negocio para un crecimiento futuro.
+Desarrollar una API REST y una base de datos SQL que permitan gestionar eficientemente la academia, preparando el sistema para crecer (más cursos, más usuarios, más funcionalidades).
 
-## 🛠️ Requisitos Técnicos
+## 🚀 Puesta en marcha
 
-1. Base de datos SQL (PostgreSQL, MySQL, etc.) o NoSQL (MongoDB, Supabase, etc.)
-2. API REST (usando Flask, FastAPI, Django REST Framework, etc.)
-3. Documentación completa de la API
-4. Tests unitarios y de integración
-5. Control de versiones con Git y GitHub
-6. Gestión del proyecto con metodologías ágiles (SCRUM)
+### Opción A — Docker (recomendado, levanta todo el stack)
 
-## 📅 Plazos
+```bash
+cp .env.example .env         # ajusta SECRET_KEY si quieres
+docker compose up --build
+```
 
-Dos semanas.
+- API: http://localhost:8000/docs (Swagger)
+- Frontend: http://localhost:8080
+
+### Opción C — Nube (Neon + Render + Vercel)
+
+Para una demo o presentación sin depender de tu máquina: guía paso a paso
+en [docs/deployment.md](docs/deployment.md).
+
+### Opción B — Desarrollo local (backend)
+
+```bash
+cd backend
+python -m venv .venv
+.venv\Scripts\activate        # Windows (usa `source .venv/bin/activate` en Linux/Mac)
+pip install -r requirements.txt
+cp .env.example .env          # por defecto usa SQLite, no requiere Postgres
+alembic upgrade head          # aplica las migraciones
+uvicorn app.main:app --reload
+```
+
+### Opción B — Desarrollo local (frontend)
+
+```bash
+cd frontend
+npm install
+cp .env.example .env
+npm run dev                   # http://localhost:5173
+```
+
+### Ejecutar los tests
+
+```bash
+cd backend
+pip install -r requirements-dev.txt
+pytest                        # usa SQLite temporal, no requiere Postgres
+```
+
+### Linting y formateo
+
+```bash
+cd backend
+black app tests && isort app tests && flake8 app tests
+```
+
+O instala los hooks de pre-commit (raíz del repo) para que se ejecuten automáticamente en cada commit:
+
+```bash
+pip install -r backend/requirements-dev.txt
+pre-commit install
+```
+
+## 🔑 Primeros pasos con la API
+
+1. Regístrate como admin: `POST /api/v1/auth/register` con `{"email": "...", "password": "...", "role": "admin"}`.
+2. Inicia sesión: `POST /api/v1/auth/login` (form `username`/`password`) → devuelve un JWT.
+3. Usa el botón **Authorize** de Swagger (`/docs`) con `Bearer <token>` para probar el resto de endpoints.
+
+Detalle completo de endpoints, roles y códigos de error en [docs/api.md](docs/api.md).
 
 ## 📦 Entregables
 
-1. Diagrama ER de la base de datos
-2. Repositorio en GitHub con código fuente
-3. Documentación de la API (Swagger o similar)
-4. Suite de tests completa y pasando
-5. Documento de retrospectiva del proyecto
-6. Tablero Kanban (Trello, Jira, etc.) con historias de usuario
+| Entregable | Dónde encontrarlo |
+|---|---|
+| Diagrama ER de la base de datos | [docs/er-diagram.md](docs/er-diagram.md) |
+| Repositorio en GitHub con código fuente | este repositorio |
+| Documentación de la API (Swagger) | `/docs` en el servidor + [docs/api.md](docs/api.md) |
+| Suite de tests completa y pasando | `backend/tests/` (63 tests, 98% cobertura) + `frontend/src/**/*.test.tsx` (6 tests) |
+| Documento de retrospectiva | [docs/retrospective.md](docs/retrospective.md) |
+| Tablero Kanban con historias de usuario | [docs/kanban.md](docs/kanban.md) |
+| Gestión de equipo / roles / ceremonias | [docs/team.md](docs/team.md) |
+| Decisiones de arquitectura | [docs/adr/](docs/adr/) |
+| Guía de despliegue en la nube | [docs/deployment.md](docs/deployment.md) |
 
-## 🏆 Niveles de Entrega
+## 🏆 Niveles de entrega cubiertos
 
-###  🟢 Nivel Esencial
+- **🟢 Esencial**: 7 tablas relacionadas · CRUD completo · tests unitarios por endpoint · Markdown · Kanban · variables de entorno · logging básico · manejo de excepciones.
+- **🟡 Medio**: 7 tablas (>5) · Swagger interactivo · errores HTTP semánticos (401/403/404/409/422/500) · exportación a CSV (estudiantes y cursos) · paginación y filtrado en los GET.
+- **🟠 Avanzado**: JWT + roles (admin/teacher/student) · caché en memoria con invalidación automática · WebSocket de notificaciones en tiempo real.
+- **🔴 Experto**: Docker + docker-compose (API + PostgreSQL + frontend) · interfaz de usuario (SPA en React) · **despliegue real en la nube** (Neon + Render + Vercel, ver [docs/deployment.md](docs/deployment.md)).
 
-- Mínimo 3 tablas relacionadas en la base de datos
-- API REST con operaciones CRUD básicas
-- Tests unitarios para cada endpoint
-- Documentación en Markdown
-- Gestión de proyecto con Kanban
-- Variables de entorno para datos sensibles
-- Logging básico
-- Manejo de excepciones simple
+## 🌟 Competencias demostradas
 
-### 🟡 Nivel Medio
+- **Diseñar y gestionar bases de datos**: modelo relacional de 7 tablas con relaciones 1:1, 1:N y N:M, migraciones versionadas con Alembic (verificadas contra PostgreSQL real, en local y en Neon), restricciones de integridad (`UNIQUE`, `ON DELETE CASCADE/SET NULL`). Ver [docs/er-diagram.md](docs/er-diagram.md).
+- **Back-end de aplicaciones**: API REST en capas (routers → services → repositories → models), JWT + RBAC, caché, WebSockets. Ver [docs/adr/](docs/adr/).
+- **Implementar tests de calidad**: 63 tests backend (98% cobertura) + 6 tests de frontend (Vitest + Testing Library), ejecutados en CI contra PostgreSQL real.
+- **Gestionar equipos técnicos**: roles, ceremonias Scrum y comunicación documentados en [docs/team.md](docs/team.md).
+- **Configura y automatiza su entorno de trabajo**: pre-commit, CI/CD, `.editorconfig`, configuración de VS Code, y uso de IA (Claude Code) como asistente de desarrollo (documentado en [docs/team.md](docs/team.md)).
+- **Despliegue de aplicaciones**: Docker multi-servicio con `docker-compose` (verificado de extremo a extremo) y despliegue en la nube con Neon + Render + Vercel ([docs/deployment.md](docs/deployment.md)).
+- **Desarrollo de interfaces dinámicas**: SPA en React con rutas protegidas por rol, paginación, formularios y notificaciones en tiempo real vía WebSocket.
+- **Fundamentos, patrones y calidad de código**: patrón Repository, inyección de dependencias, DTOs con Pydantic, linters automatizados. Ver [docs/adr/0001-arquitectura-en-capas.md](docs/adr/0001-arquitectura-en-capas.md).
 
-- Estructura de base de datos más compleja (5+ tablas)
-- Documentación interactiva (Swagger)
-- Manejo avanzado de errores con códigos HTTP apropiados
-- Exportación de datos a CSV
-- Filtrado y paginación en endpoints GET
+## 📅 Plazos
 
-### 🟠 Nivel Avanzado
-
-- Autenticación con JWT
-- Roles de usuario y permisos
-- Caché de respuestas para optimizar rendimiento
-- Implementación de websockets para actualizaciones en tiempo real
-
-### 🔴 Nivel Experto
-
-- Contenedorización con Docker
-- Despliegue en la nube (AWS, Google Cloud, etc.)
-- Integración con servicios externos (pagos, notificaciones, etc.)
-- Interfaz de usuario básica (web o móvil)
-
-## 🌟 Competencias:
-- Diseñar y gestionar bases de datos
-- Diseñar de back-end de aplicaciones
-- Implementar tests de calidad
-- Gestionar equipos técnicos
-- Configura y automatiza su entorno de trabajo
-
+Dos semanas (2 sprints de 1 semana — ver [docs/kanban.md](docs/kanban.md)).
