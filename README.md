@@ -139,6 +139,7 @@ Detalle completo de endpoints, roles y códigos de error en [docs/api.md](docs/a
 | Gestión de equipo / roles / ceremonias | [docs/team.md](docs/team.md) |
 | Decisiones de arquitectura | [docs/adr/](docs/adr/) |
 | Guía de despliegue en la nube | [docs/deployment.md](docs/deployment.md) |
+| Memoria del proyecto (PDF, Arial 12) | [docs/memoria/memoria.pdf](docs/memoria/memoria.pdf) (se regenera con `python docs/memoria/generar_memoria.py`) |
 
 ## 🏆 Niveles de entrega cubiertos
 
