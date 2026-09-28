@@ -38,6 +38,17 @@ describe("Login", () => {
     );
   });
 
+  it("permite mostrar y ocultar la contrasena", () => {
+    renderLogin();
+    const passwordInput = screen.getByLabelText(/contrasena/i);
+
+    expect(passwordInput).toHaveAttribute("type", "password");
+    fireEvent.click(screen.getByRole("button", { name: /ver/i }));
+    expect(passwordInput).toHaveAttribute("type", "text");
+    fireEvent.click(screen.getByRole("button", { name: /ocultar/i }));
+    expect(passwordInput).toHaveAttribute("type", "password");
+  });
+
   it("muestra un mensaje de error cuando el login falla", async () => {
     loginMock.mockRejectedValueOnce(new Error("credenciales invalidas"));
     renderLogin();

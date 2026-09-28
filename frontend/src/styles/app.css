@@ -97,6 +97,28 @@ body {
   margin: 0;
 }
 
+.password-field {
+  display: flex;
+  gap: 6px;
+}
+
+.password-field input {
+  flex: 1;
+  min-width: 0;
+}
+
+.password-toggle {
+  background: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-muted);
+  font-weight: 500;
+}
+
+.password-toggle:hover {
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
 .page {
   display: flex;
   flex-direction: column;
