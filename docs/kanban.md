@@ -8,6 +8,17 @@ una tarjeta por historia (columna = estado, etiqueta = sprint).
 **Tablero visual:** [GitHub Projects — Academia F5 Kanban](https://github.com/users/costanna/projects/2)
 (un issue por historia; las completadas estan cerradas).
 
+> **Nota sobre las fechas del tablero.** Durante los sprints el tablero se
+> llevo en este documento (`docs/kanban.md`), actualizado con el repositorio
+> en cada cambio. Al cerrar el sprint 3 se migro a GitHub Projects para
+> tenerlo en una herramienta visual: los 24 issues se crearon de una vez a
+> partir de estas tablas, por lo que todos comparten la fecha de la
+> migracion. El historial real de cada historia es el de este archivo
+> (`git log -p docs/kanban.md`) y el de los commits que la implementan.
+>
+> Desde la migracion, cada cambio se desarrolla en su propia rama y se
+> integra mediante una pull request con el CI en verde.
+
 Leyenda de estado: `Backlog` · `Por hacer` · `En progreso` · `En revision` · `Hecho`
 
 ## Sprint 1 — Fundacion (dominio, auth, CRUD basico)
