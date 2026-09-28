@@ -205,7 +205,7 @@ story += [
     Spacer(1, 6),
     Paragraph("Proyecto del Módulo 1: IA-Project-CRUD", S["center"]),
     Spacer(1, 6),
-    Paragraph("Autoría: annahico", S["center"]),
+    Paragraph("Autoría: costanna", S["center"]),
     Spacer(1, 6),
     Paragraph(date.today().strftime("%d/%m/%Y"), S["center"]),
     PageBreak(),
@@ -783,7 +783,7 @@ def build():
     doc = MemoriaDoc(
         str(OUT), pagesize=A4, leftMargin=MARGIN, rightMargin=MARGIN,
         topMargin=MARGIN, bottomMargin=MARGIN + FOOTER_H,
-        title="Academia F5 — Memoria del proyecto", author="annahico",
+        title="Academia F5 — Memoria del proyecto", author="costanna",
     )
     doc.multiBuild(story, onFirstPage=on_page, onLaterPages=on_page)
     print(f"PDF generado en {OUT}")
