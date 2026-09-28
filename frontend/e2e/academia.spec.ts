@@ -60,7 +60,13 @@ test("flujo completo: profesor, curso, estudiante, matricula y nota", async ({ p
   await page.getByRole("button", { name: "Matricular" }).click();
   await expect(page.getByRole("row", { name: new RegExp(studentName) })).toContainText(courseName);
 
-  // 5. El profesor pone una nota
+  // 5. El estudiante deja abierto su dashboard (conectado al WebSocket)...
+  const studentContext = await browser.newContext();
+  const studentPage = await studentContext.newPage();
+  await login(studentPage, studentEmail, "alumno1234");
+  await expect(studentPage.getByText("Todavia no tienes notas.")).toBeVisible();
+
+  // ...y el profesor le pone una nota
   const teacherContext = await browser.newContext();
   const teacherPage = await teacherContext.newPage();
   await login(teacherPage, teacherEmail, "profe1234");
@@ -72,10 +78,15 @@ test("flujo completo: profesor, curso, estudiante, matricula y nota", async ({ p
   await expect(teacherPage.getByRole("cell", { name: "Parcial 1" })).toBeVisible();
   await teacherContext.close();
 
-  // 6. El estudiante ve su nota, sin opciones de gestion
-  const studentContext = await browser.newContext();
-  const studentPage = await studentContext.newPage();
-  await login(studentPage, studentEmail, "alumno1234");
+  // 6. Le llega el aviso en tiempo real y la nota aparece en su dashboard
+  await expect(studentPage.getByText(/Nota de 8.5 en Parcial 1/)).toBeVisible();
+  await expect(studentPage.getByRole("cell", { name: courseName })).toBeVisible();
+
+  // 7. Tras recargar el aviso desaparece, pero la nota sigue en el dashboard
+  await studentPage.reload();
+  await expect(studentPage.getByRole("cell", { name: "Parcial 1" })).toBeVisible();
+
+  // 8. Ve su nota en la pagina de notas, sin opciones de gestion
   await expect(studentPage.getByRole("link", { name: "Estudiantes" })).toHaveCount(0);
   await studentPage.getByRole("link", { name: "Notas" }).click();
   await studentPage.getByLabel("Matricula").selectOption({ label: `${studentName} · ${courseName}` });
