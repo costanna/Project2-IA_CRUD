@@ -1,9 +1,11 @@
 import json
 
 
-def _enroll(client, admin_headers, student):
+def _enroll(client, admin_headers, student, teacher_id=None):
     course_id = client.post(
-        "/api/v1/courses", headers=admin_headers, json={"name": "Algoritmia", "credits": 3}
+        "/api/v1/courses",
+        headers=admin_headers,
+        json={"name": "Algoritmia", "credits": 3, "teacher_id": teacher_id},
     ).json()["id"]
     enrollment = client.post(
         "/api/v1/enrollments",
@@ -15,7 +17,7 @@ def _enroll(client, admin_headers, student):
 
 def test_estudiante_conectado_recibe_notificacion_de_nota_nueva(client, admin, teacher, student):
     token = student.headers["Authorization"].split(" ")[1]
-    enrollment_id = _enroll(client, admin.headers, student)
+    enrollment_id = _enroll(client, admin.headers, student, teacher.profile.id)
 
     with client.websocket_connect(f"/ws/notifications?token={token}") as websocket:
         client.post(

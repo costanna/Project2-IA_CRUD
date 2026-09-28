@@ -45,7 +45,7 @@ detecto accesos indebidos.
 | HU-18 | Como **administrador**, quiero editar estudiantes, profesores, cursos y notas desde la web. | Boton "Editar" en linea en cada tabla; guardar llama a `PUT`. | 5 | Hecho |
 | HU-19 | Como **administrador**, quiero asignar un profesor a cada curso y ver su nombre. | Selector de profesor al crear/editar curso; se puede dejar sin profesor. | 2 | Hecho |
 | HU-20 | Como **profesor/administrador**, quiero matricular a un estudiante y cambiar el estado de su matricula. | Formulario estudiante + curso; selector de estado; nombres en vez de ids. | 3 | Hecho |
-| HU-21 | Como **responsable de seguridad**, quiero que cada rol solo acceda a lo suyo. | Registro publico solo como estudiante; un estudiante solo se matricula a si mismo y solo ve sus matriculas y notas; tests de permisos. | 5 | Hecho |
+| HU-21 | Como **responsable de seguridad**, quiero que cada rol solo acceda a lo suyo. | Registro publico solo como estudiante; un estudiante solo se matricula a si mismo y solo ve sus matriculas y notas; un profesor solo gestiona matriculas y notas de los cursos que imparte; tests de permisos. | 5 | Hecho |
 | HU-22 | Como **estudiante**, quiero recibir un email cuando me pongan una nota. | Integracion con Resend en segundo plano; sin clave, desactivado; tests con transporte simulado. | 3 | Hecho |
 | HU-23 | Como **responsable tecnico**, quiero tests end-to-end que prueben la app completa en un navegador. | Playwright: login, flujo profesor → curso → estudiante → matricula → nota, y bloqueo por rol; job en CI. | 3 | Hecho |
 | HU-24 | Como **administrador**, quiero gestionar los horarios de los cursos desde la web. | Pagina `/schedules`: listado ordenado por dia y hora; alta y baja para admin. | 2 | Hecho |

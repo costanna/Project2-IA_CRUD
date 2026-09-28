@@ -1,3 +1,6 @@
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -9,6 +12,21 @@ from app.routers import auth, courses, enrollments, grades, schedules, students,
 
 configure_logging()
 
+
+@asynccontextmanager
+async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+    # En un proyecto con Alembic configurado, las migraciones se aplican con
+    # `alembic upgrade head` antes de arrancar. `create_all` queda como red
+    # de seguridad para entornos de desarrollo/tests sin migraciones.
+    Base.metadata.create_all(bind=engine)
+    logger.info("%s iniciada en entorno '%s'", settings.app_name, settings.environment)
+    if settings.cors_origin_list:
+        logger.info("CORS permitido para: %s", ", ".join(settings.cors_origin_list))
+    else:
+        logger.warning("CORS_ORIGINS esta vacia: el navegador bloqueara las peticiones del frontend.")
+    yield
+
+
 app = FastAPI(
     title=settings.app_name,
     description=(
@@ -16,6 +34,7 @@ app = FastAPI(
         "estudiantes, profesores, cursos, horarios, matriculas y notas."
     ),
     version="1.0.0",
+    lifespan=lifespan,
 )
 
 app.add_middleware(
@@ -37,19 +56,6 @@ app.include_router(schedules.router, prefix=settings.api_v1_prefix)
 app.include_router(enrollments.router, prefix=settings.api_v1_prefix)
 app.include_router(grades.router, prefix=settings.api_v1_prefix)
 app.include_router(ws.router)
-
-
-@app.on_event("startup")
-def on_startup() -> None:
-    # En un proyecto con Alembic configurado, las migraciones se aplican con
-    # `alembic upgrade head` antes de arrancar. `create_all` queda como red
-    # de seguridad para entornos de desarrollo/tests sin migraciones.
-    Base.metadata.create_all(bind=engine)
-    logger.info("%s iniciada en entorno '%s'", settings.app_name, settings.environment)
-    if settings.cors_origin_list:
-        logger.info("CORS permitido para: %s", ", ".join(settings.cors_origin_list))
-    else:
-        logger.warning("CORS_ORIGINS esta vacia: el navegador bloqueara las peticiones del frontend.")
 
 
 @app.get("/health", tags=["health"])

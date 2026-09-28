@@ -2,9 +2,10 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
-from app.deps import require_roles
+from app.deps import get_current_user, require_roles
+from app.exceptions import NotFoundError
 from app.models.teacher import Teacher
-from app.models.user import UserRole
+from app.models.user import User, UserRole
 from app.schemas.common import Page
 from app.schemas.teacher import TeacherCreate, TeacherRead, TeacherUpdate
 from app.services.teacher_service import TeacherService
@@ -23,6 +24,14 @@ def list_teachers(
 ) -> Page:
     items, total = TeacherService(db).list(skip, limit)
     return Page(items=items, total=total, skip=skip, limit=limit)
+
+
+@router.get("/me", response_model=TeacherRead)
+def get_my_teacher_profile(current_user: User = Depends(get_current_user)) -> Teacher:
+    """Perfil de profesor del usuario autenticado (para filtrar sus cursos en la web)."""
+    if not current_user.teacher_profile:
+        raise NotFoundError("El usuario autenticado no tiene un perfil de profesor asociado.")
+    return current_user.teacher_profile
 
 
 @router.get("/{teacher_id}", response_model=TeacherRead, dependencies=[Depends(staff_only)])

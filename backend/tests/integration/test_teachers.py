@@ -76,3 +76,12 @@ def test_actualizar_y_borrar_profesor(client, admin, teacher):
 
     get_after_delete = client.get(f"/api/v1/teachers/{teacher.profile.id}", headers=admin.headers)
     assert get_after_delete.status_code == 404
+
+
+def test_profesor_consulta_su_propio_perfil(client, teacher, student):
+    mine = client.get("/api/v1/teachers/me", headers=teacher.headers)
+    not_teacher = client.get("/api/v1/teachers/me", headers=student.headers)
+
+    assert mine.status_code == 200
+    assert mine.json()["id"] == teacher.profile.id
+    assert not_teacher.status_code == 404

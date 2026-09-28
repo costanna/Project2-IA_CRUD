@@ -124,6 +124,27 @@ describe("Enrollments", () => {
     );
   });
 
+  it("un profesor solo ve sus cursos en el selector", async () => {
+    mockAuth.role = "teacher";
+    mockApi.get.mockImplementation((url: string, config?: { params?: { teacher_id?: number } }) => {
+      if (url === "/teachers/me") return Promise.resolve({ data: laura });
+      if (url === "/courses") {
+        const all = [
+          { ...react, teacher_id: 7 },
+          { id: 4, name: "SQL", description: null, credits: 3, teacher_id: 9 },
+        ];
+        const teacherId = config?.params?.teacher_id;
+        return Promise.resolve(page(all.filter((c) => teacherId === undefined || c.teacher_id === teacherId)));
+      }
+      return Promise.resolve(page([]));
+    });
+    render(<Enrollments />);
+
+    // Aparece en el selector de matricula y en el filtro por curso.
+    expect(await screen.findAllByRole("option", { name: "React" })).toHaveLength(2);
+    expect(screen.queryByRole("option", { name: "SQL" })).not.toBeInTheDocument();
+  });
+
   it("muestra nombres en lugar de ids", async () => {
     routeGet({
       "/courses": [react],

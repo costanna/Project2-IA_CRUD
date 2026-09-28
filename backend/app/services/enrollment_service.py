@@ -16,9 +16,16 @@ class EnrollmentService:
         self.courses = CourseRepository(db)
 
     def list(
-        self, skip: int, limit: int, student_id: int | None = None, course_id: int | None = None
+        self,
+        skip: int,
+        limit: int,
+        student_id: int | None = None,
+        course_id: int | None = None,
+        teacher_id: int | None = None,
     ) -> tuple[list[Enrollment], int]:
-        return self.enrollments.list(skip=skip, limit=limit, student_id=student_id, course_id=course_id)
+        return self.enrollments.list_scoped(
+            skip=skip, limit=limit, student_id=student_id, course_id=course_id, teacher_id=teacher_id
+        )
 
     def get(self, enrollment_id: int) -> Enrollment:
         enrollment = self.enrollments.get(enrollment_id)

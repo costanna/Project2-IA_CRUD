@@ -15,13 +15,16 @@ class GradeService:
         self.enrollments = EnrollmentRepository(db)
 
     def list(
-        self, skip: int, limit: int, enrollment_id: int | None = None, student_id: int | None = None
+        self,
+        skip: int,
+        limit: int,
+        enrollment_id: int | None = None,
+        student_id: int | None = None,
+        teacher_id: int | None = None,
     ) -> tuple[list[Grade], int]:
-        if student_id is not None:
-            return self.grades.list_for_student(
-                student_id, skip=skip, limit=limit, enrollment_id=enrollment_id
-            )
-        return self.grades.list(skip=skip, limit=limit, enrollment_id=enrollment_id)
+        return self.grades.list_scoped(
+            skip=skip, limit=limit, enrollment_id=enrollment_id, student_id=student_id, teacher_id=teacher_id
+        )
 
     def get(self, grade_id: int) -> Grade:
         grade = self.grades.get(grade_id)
