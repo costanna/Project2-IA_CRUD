@@ -1,0 +1,34 @@
+# Blueprint de Render para el backend (API + Postgres via Neon).
+# Uso: en Render, "New" -> "Blueprint" -> selecciona este repositorio.
+# Render detecta este archivo y crea el servicio automaticamente; solo
+# hay que rellenar a mano las variables marcadas con `sync: false`
+# (secretos que no queremos versionar en git).
+#
+# Ver docs/deployment.md para la guia paso a paso completa.
+
+services:
+  - type: web
+    name: academia-f5-api
+    runtime: docker
+    plan: free
+    region: frankfurt
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: DATABASE_URL
+        sync: false # pega aqui la connection string de Neon (ver docs/deployment.md)
+      - key: SECRET_KEY
+        generateValue: true # Render genera un valor aleatorio seguro
+      - key: ALGORITHM
+        value: HS256
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: "60"
+      - key: CORS_ORIGINS
+        sync: false # p.ej. ["https://tu-app.vercel.app"] (rellenar tras desplegar el frontend)
+      - key: CACHE_TTL_SECONDS
+        value: "30"
+      - key: LOG_LEVEL
+        value: INFO
