@@ -50,13 +50,13 @@ class Settings(BaseSettings):
     # CORS (frontend). Se guarda como texto porque pydantic-settings exige
     # JSON para los campos de tipo lista, y en paneles como Render es facil
     # pegar la URL sin corchetes. Se acepta JSON o URLs separadas por comas.
-    # Si la variable llega vacia se usan los origenes por defecto (frontend
+    # A lo configurado se suman siempre los origenes por defecto (frontend
     # desplegado en Vercel + Vite en local).
     cors_origins: str = ""
 
     @property
     def cors_origin_list(self) -> list[str]:
-        value = self.cors_origins.strip() or DEFAULT_CORS_ORIGINS
+        value = self.cors_origins.strip()
         if value.startswith("["):
             try:
                 origins = [str(origin) for origin in json.loads(value)]
@@ -64,9 +64,12 @@ class Settings(BaseSettings):
                 origins = value.strip("[]").split(",")
         else:
             origins = value.split(",")
+        # Los origenes por defecto se permiten siempre, para que un valor
+        # mal escrito en el panel del proveedor no deje fuera al frontend.
+        origins += DEFAULT_CORS_ORIGINS.split(",")
         # El navegador envia el origen sin comillas ni barra final.
         cleaned = (origin.strip().strip("\"'").strip().rstrip("/") for origin in origins)
-        return [origin for origin in cleaned if origin]
+        return list(dict.fromkeys(origin for origin in cleaned if origin))
 
     # Cache
     cache_ttl_seconds: int = 30
