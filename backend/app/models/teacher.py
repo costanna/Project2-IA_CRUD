@@ -23,3 +23,7 @@ class Teacher(Base):
 
     user: Mapped["User"] = relationship(back_populates="teacher_profile")
     courses: Mapped[list["Course"]] = relationship(back_populates="teacher")
+
+    @property
+    def email(self) -> str:
+        return self.user.email

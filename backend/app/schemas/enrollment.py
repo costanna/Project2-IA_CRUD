@@ -22,3 +22,5 @@ class EnrollmentRead(BaseModel):
     course_id: int
     enrollment_date: datetime
     status: EnrollmentStatus
+    student_name: str
+    course_name: str

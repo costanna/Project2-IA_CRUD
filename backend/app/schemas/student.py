@@ -24,6 +24,7 @@ class StudentRead(BaseModel):
 
     id: int
     user_id: int
+    email: str
     first_name: str
     last_name: str
     birth_date: date | None

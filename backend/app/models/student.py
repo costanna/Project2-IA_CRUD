@@ -26,3 +26,7 @@ class Student(Base):
     enrollments: Mapped[list["Enrollment"]] = relationship(
         back_populates="student", cascade="all, delete-orphan"
     )
+
+    @property
+    def email(self) -> str:
+        return self.user.email

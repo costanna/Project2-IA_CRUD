@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from app.core.cache import cache_key, get_cached, invalidate_prefix, set_cached
 from app.exceptions import NotFoundError
 from app.models.course import Course
+from app.models.teacher import Teacher
 from app.repositories.course_repository import CourseRepository
 from app.schemas.course import CourseCreate, CourseUpdate
 
@@ -34,14 +35,24 @@ class CourseService:
             raise NotFoundError(f"Curso {course_id} no encontrado.")
         return course
 
+    def _check_teacher(self, teacher_id: int | None) -> None:
+        if teacher_id is not None and not self.db.get(Teacher, teacher_id):
+            raise NotFoundError(f"Profesor {teacher_id} no encontrado.")
+
     def create(self, data: CourseCreate) -> Course:
+        self._check_teacher(data.teacher_id)
         course = self.courses.create(Course(**data.model_dump()))
         invalidate_prefix(CACHE_PREFIX)
         return course
 
     def update(self, course_id: int, data: CourseUpdate) -> Course:
         course = self.get(course_id)
-        updated = self.courses.update(course, data.model_dump(exclude_unset=True))
+        changes = data.model_dump(exclude_unset=True)
+        self._check_teacher(changes.get("teacher_id"))
+        # El update generico ignora los None; quitar el profesor es explicito.
+        if "teacher_id" in changes and changes["teacher_id"] is None:
+            course.teacher_id = None
+        updated = self.courses.update(course, changes)
         invalidate_prefix(CACHE_PREFIX)
         return updated
 

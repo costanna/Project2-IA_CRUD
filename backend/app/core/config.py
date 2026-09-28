@@ -12,7 +12,6 @@ from functools import lru_cache
 from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-
 DEFAULT_CORS_ORIGINS = "https://academia-f5.vercel.app,http://localhost:5173"
 
 

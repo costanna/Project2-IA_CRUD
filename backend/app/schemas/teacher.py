@@ -22,6 +22,7 @@ class TeacherRead(BaseModel):
 
     id: int
     user_id: int
+    email: str
     first_name: str
     last_name: str
     specialty: str | None
