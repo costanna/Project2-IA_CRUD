@@ -1,11 +1,11 @@
 import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
+import { PasswordInput } from "../components/PasswordInput";
 import { useAuth } from "../context/AuthContext";
 
 export function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
@@ -41,23 +41,7 @@ export function Login() {
         />
 
         <label htmlFor="password">Contrasena</label>
-        <div className="password-field">
-          <input
-            id="password"
-            type={showPassword ? "text" : "password"}
-            required
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <button
-            type="button"
-            className="password-toggle"
-            aria-pressed={showPassword}
-            onClick={() => setShowPassword((visible) => !visible)}
-          >
-            {showPassword ? "Ocultar" : "Ver"}
-          </button>
-        </div>
+        <PasswordInput id="password" value={password} onChange={setPassword} />
 
         {error && <p className="error">{error}</p>}
 
