@@ -35,9 +35,21 @@ export interface Page<T> {
   limit: number;
 }
 
+// Descarga un endpoint CSV de la API como fichero (usa el JWT del interceptor).
+export async function downloadCsv(path: string, filename: string) {
+  const response = await api.get(path, { responseType: "blob" });
+  const url = URL.createObjectURL(response.data);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
 export interface Student {
   id: number;
   user_id: number;
+  email: string;
   first_name: string;
   last_name: string;
   birth_date: string | null;
@@ -48,6 +60,7 @@ export interface Student {
 export interface Teacher {
   id: number;
   user_id: number;
+  email: string;
   first_name: string;
   last_name: string;
   specialty: string | null;
@@ -67,7 +80,45 @@ export interface Enrollment {
   student_id: number;
   course_id: number;
   enrollment_date: string;
-  status: "active" | "completed" | "dropped";
+  status: EnrollmentStatus;
+  student_name: string;
+  course_name: string;
+}
+
+export type EnrollmentStatus = "active" | "completed" | "dropped";
+
+export const ENROLLMENT_STATUS_LABELS: Record<EnrollmentStatus, string> = {
+  active: "Activa",
+  completed: "Completada",
+  dropped: "Baja",
+};
+
+export type DayOfWeek =
+  | "monday"
+  | "tuesday"
+  | "wednesday"
+  | "thursday"
+  | "friday"
+  | "saturday"
+  | "sunday";
+
+export const DAY_LABELS: Record<DayOfWeek, string> = {
+  monday: "Lunes",
+  tuesday: "Martes",
+  wednesday: "Miercoles",
+  thursday: "Jueves",
+  friday: "Viernes",
+  saturday: "Sabado",
+  sunday: "Domingo",
+};
+
+export interface Schedule {
+  id: number;
+  course_id: number;
+  day_of_week: DayOfWeek;
+  start_time: string;
+  end_time: string;
+  classroom: string | null;
 }
 
 export interface Grade {
