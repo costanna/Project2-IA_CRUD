@@ -5,6 +5,9 @@ semanas), mas un sprint corto de cierre tras la primera demo. Este documento es 
 usuario; se puede importar tal cual a Trello/Jira/GitHub Projects creando
 una tarjeta por historia (columna = estado, etiqueta = sprint).
 
+**Tablero visual:** [GitHub Projects — Academia F5 Kanban](https://github.com/users/costanna/projects/2)
+(un issue por historia; las completadas estan cerradas).
+
 Leyenda de estado: `Backlog` · `Por hacer` · `En progreso` · `En revision` · `Hecho`
 
 ## Sprint 1 — Fundacion (dominio, auth, CRUD basico)
