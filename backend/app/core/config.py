@@ -70,6 +70,10 @@ class Settings(BaseSettings):
         cleaned = (origin.strip().strip("\"'").strip().rstrip("/") for origin in origins)
         return list(dict.fromkeys(origin for origin in cleaned if origin))
 
+    # Email (Resend). Sin clave, el envio queda desactivado.
+    resend_api_key: str = ""
+    email_from: str = "Academia F5 <onboarding@resend.dev>"
+
     # Cache
     cache_ttl_seconds: int = 30
 

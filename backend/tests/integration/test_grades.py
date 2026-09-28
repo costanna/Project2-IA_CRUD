@@ -71,3 +71,36 @@ def test_actualizar_y_listar_notas_por_matricula(client, admin, teacher, student
     listing = client.get(f"/api/v1/grades?enrollment_id={enrollment_id}", headers=student.headers)
     assert listing.status_code == 200
     assert listing.json()["total"] == 1
+
+
+def test_registrar_nota_envia_email_al_estudiante(client, admin, teacher, student, monkeypatch):
+    sent = []
+
+    async def fake_send_new_grade(self, **kwargs):
+        sent.append(kwargs)
+        return True
+
+    monkeypatch.setattr("app.services.email_service.EmailService.send_new_grade", fake_send_new_grade)
+    course_id = client.post("/api/v1/courses", headers=admin.headers, json={"name": "React"}).json()["id"]
+    enrollment_id = client.post(
+        "/api/v1/enrollments",
+        headers=admin.headers,
+        json={"student_id": student.profile.id, "course_id": course_id},
+    ).json()["id"]
+
+    response = client.post(
+        "/api/v1/grades",
+        headers=teacher.headers,
+        json={"enrollment_id": enrollment_id, "evaluation_name": "Parcial 1", "score": 9},
+    )
+
+    assert response.status_code == 201
+    assert sent == [
+        {
+            "to": "student@academiaf5.dev",
+            "student_name": "Grace",
+            "course": "React",
+            "evaluation": "Parcial 1",
+            "score": 9.0,
+        }
+    ]
