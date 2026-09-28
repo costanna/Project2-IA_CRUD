@@ -77,8 +77,9 @@
 
 ### 😕 Que no funciono tan bien (Stop)
 - Revisar los permisos solo "por rol" dejaba huecos: cualquier usuario
-  podia registrarse como admin, y un estudiante podia matricular a otros o
-  ver notas ajenas. Faltaba comprobar la **propiedad** de los datos.
+  podia registrarse como admin, un estudiante podia matricular a otros o
+  ver notas ajenas, y un profesor podia poner notas en cursos que no
+  imparte. Faltaba comprobar la **propiedad** de los datos.
 - Configurar CORS a mano en el panel de Render costo varias iteraciones: un
   valor mal escrito en `CORS_ORIGINS` bloqueaba el login sin ningun error en
   el servidor.
@@ -95,9 +96,9 @@
 
 ## Metricas del proyecto
 
-- **Tests:** 79 de backend (97% de cobertura, `pytest --cov=app`), 12 de
+- **Tests:** 84 de backend (97% de cobertura, `pytest --cov=app`), 13 de
   frontend (Vitest + Testing Library) y 3 escenarios end-to-end (Playwright).
-- **Endpoints REST:** 32, mas 1 canal WebSocket.
+- **Endpoints REST:** 33, mas 1 canal WebSocket.
 - **Tablas de base de datos:** 7, con migraciones versionadas en Alembic.
 - **Servicios externos:** Resend (email de notas).
 - **Historias de usuario completadas:** 21 de 24 (3 quedan en backlog, ver

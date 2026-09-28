@@ -1,6 +1,8 @@
-def _enroll(client, admin_headers, student):
+def _enroll(client, admin_headers, student, teacher_id=None):
     course_id = client.post(
-        "/api/v1/courses", headers=admin_headers, json={"name": "Algoritmia", "credits": 3}
+        "/api/v1/courses",
+        headers=admin_headers,
+        json={"name": "Algoritmia", "credits": 3, "teacher_id": teacher_id},
     ).json()["id"]
     enrollment = client.post(
         "/api/v1/enrollments",
@@ -11,7 +13,7 @@ def _enroll(client, admin_headers, student):
 
 
 def test_profesor_puede_registrar_nota(client, admin, teacher, student):
-    enrollment_id = _enroll(client, admin.headers, student)
+    enrollment_id = _enroll(client, admin.headers, student, teacher.profile.id)
 
     response = client.post(
         "/api/v1/grades",
@@ -36,7 +38,7 @@ def test_estudiante_no_puede_registrar_nota(client, admin, student):
 
 
 def test_nota_fuera_de_rango_devuelve_422(client, admin, teacher, student):
-    enrollment_id = _enroll(client, admin.headers, student)
+    enrollment_id = _enroll(client, admin.headers, student, teacher.profile.id)
 
     response = client.post(
         "/api/v1/grades",
@@ -57,7 +59,7 @@ def test_nota_con_matricula_inexistente_devuelve_404(client, teacher):
 
 
 def test_actualizar_y_listar_notas_por_matricula(client, admin, teacher, student):
-    enrollment_id = _enroll(client, admin.headers, student)
+    enrollment_id = _enroll(client, admin.headers, student, teacher.profile.id)
     grade = client.post(
         "/api/v1/grades",
         headers=teacher.headers,
@@ -81,7 +83,9 @@ def test_registrar_nota_envia_email_al_estudiante(client, admin, teacher, studen
         return True
 
     monkeypatch.setattr("app.services.email_service.EmailService.send_new_grade", fake_send_new_grade)
-    course_id = client.post("/api/v1/courses", headers=admin.headers, json={"name": "React"}).json()["id"]
+    course_id = client.post(
+        "/api/v1/courses", headers=admin.headers, json={"name": "React", "teacher_id": teacher.profile.id}
+    ).json()["id"]
     enrollment_id = client.post(
         "/api/v1/enrollments",
         headers=admin.headers,
@@ -104,3 +108,36 @@ def test_registrar_nota_envia_email_al_estudiante(client, admin, teacher, studen
             "score": 9.0,
         }
     ]
+
+
+def test_profesor_no_puede_poner_nota_en_un_curso_ajeno(client, admin, teacher, student):
+    enrollment_id = _enroll(client, admin.headers, student)  # curso sin profesor asignado
+
+    response = client.post(
+        "/api/v1/grades",
+        headers=teacher.headers,
+        json={"enrollment_id": enrollment_id, "evaluation_name": "Parcial 1", "score": 5},
+    )
+
+    assert response.status_code == 403
+
+
+def test_profesor_solo_ve_notas_de_sus_cursos(client, admin, teacher, student):
+    own = _enroll(client, admin.headers, student, teacher.profile.id)
+    other_course = client.post("/api/v1/courses", headers=admin.headers, json={"name": "Otro"}).json()["id"]
+    other = client.post(
+        "/api/v1/enrollments",
+        headers=admin.headers,
+        json={"student_id": student.profile.id, "course_id": other_course},
+    ).json()["id"]
+    for enrollment_id in (own, other):
+        client.post(
+            "/api/v1/grades",
+            headers=admin.headers,
+            json={"enrollment_id": enrollment_id, "evaluation_name": "Parcial", "score": 6},
+        )
+
+    listing = client.get("/api/v1/grades", headers=teacher.headers).json()
+
+    assert listing["total"] == 1
+    assert listing["items"][0]["enrollment_id"] == own

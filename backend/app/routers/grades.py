@@ -2,12 +2,13 @@ from fastapi import APIRouter, BackgroundTasks, Depends, Query
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
-from app.deps import get_current_user, own_student_id, require_roles
+from app.deps import ensure_can_manage_course, get_current_user, own_student_id, own_teacher_id, require_roles
 from app.models.grade import Grade
 from app.models.user import User, UserRole
 from app.schemas.common import Page
 from app.schemas.grade import GradeCreate, GradeRead, GradeUpdate
 from app.services.email_service import EmailService
+from app.services.enrollment_service import EnrollmentService
 from app.services.grade_service import GradeService
 
 router = APIRouter(prefix="/grades", tags=["grades"])
@@ -23,17 +24,25 @@ def list_grades(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> Page:
-    # Un estudiante solo ve las notas de sus propias matriculas.
+    # Un estudiante solo ve sus notas; un profesor, las de sus cursos.
     items, total = GradeService(db).list(
-        skip, limit, enrollment_id=enrollment_id, student_id=own_student_id(current_user)
+        skip,
+        limit,
+        enrollment_id=enrollment_id,
+        student_id=own_student_id(current_user),
+        teacher_id=own_teacher_id(current_user),
     )
     return Page(items=items, total=total, skip=skip, limit=limit)
 
 
-@router.post("", response_model=GradeRead, status_code=201, dependencies=[Depends(staff_only)])
+@router.post("", response_model=GradeRead, status_code=201)
 async def create_grade(
-    data: GradeCreate, background_tasks: BackgroundTasks, db: Session = Depends(get_db)
+    data: GradeCreate,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(staff_only),
 ) -> Grade:
+    ensure_can_manage_course(current_user, EnrollmentService(db).get(data.enrollment_id).course)
     grade = await GradeService(db).create(data)
     # El email se envia tras responder, para no hacer esperar al profesor.
     enrollment = grade.enrollment
@@ -48,11 +57,22 @@ async def create_grade(
     return grade
 
 
-@router.put("/{grade_id}", response_model=GradeRead, dependencies=[Depends(staff_only)])
-def update_grade(grade_id: int, data: GradeUpdate, db: Session = Depends(get_db)) -> Grade:
-    return GradeService(db).update(grade_id, data)
+@router.put("/{grade_id}", response_model=GradeRead)
+def update_grade(
+    grade_id: int,
+    data: GradeUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(staff_only),
+) -> Grade:
+    service = GradeService(db)
+    ensure_can_manage_course(current_user, service.get(grade_id).enrollment.course)
+    return service.update(grade_id, data)
 
 
-@router.delete("/{grade_id}", status_code=204, dependencies=[Depends(staff_only)])
-def delete_grade(grade_id: int, db: Session = Depends(get_db)) -> None:
-    GradeService(db).delete(grade_id)
+@router.delete("/{grade_id}", status_code=204)
+def delete_grade(
+    grade_id: int, db: Session = Depends(get_db), current_user: User = Depends(staff_only)
+) -> None:
+    service = GradeService(db)
+    ensure_can_manage_course(current_user, service.get(grade_id).enrollment.course)
+    service.delete(grade_id)

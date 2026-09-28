@@ -28,6 +28,7 @@ requieren cabecera `Authorization: Bearer <token>`.
 | Estudiantes | `PUT /api/v1/students/{id}` | admin | Actualizacion parcial |
 | Estudiantes | `DELETE /api/v1/students/{id}` | admin | Baja (borra tambien su cuenta de acceso) |
 | Profesores | `GET /api/v1/teachers` | cualquiera autenticado | Lista paginada |
+| Profesores | `GET /api/v1/teachers/me` | teacher | Mi propio perfil de profesor |
 | Profesores | `POST /api/v1/teachers` | admin | Alta |
 | Profesores | `PUT /api/v1/teachers/{id}` | admin | Actualizacion |
 | Profesores | `DELETE /api/v1/teachers/{id}` | admin | Baja (borra su cuenta; sus cursos quedan sin profesor) |
@@ -39,14 +40,14 @@ requieren cabecera `Authorization: Bearer <token>`.
 | Horarios | `GET /api/v1/schedules` | cualquiera autenticado | Lista, filtro `course_id` |
 | Horarios | `POST /api/v1/schedules` | admin | Alta |
 | Horarios | `DELETE /api/v1/schedules/{id}` | admin | Baja |
-| Matriculas | `GET /api/v1/enrollments` | cualquiera autenticado | Lista, filtros `student_id`/`course_id`. Un estudiante solo recibe las suyas. Incluye `student_name` y `course_name` |
-| Matriculas | `POST /api/v1/enrollments` | admin, teacher; student solo a si mismo | Matricula a un estudiante en un curso |
-| Matriculas | `PUT /api/v1/enrollments/{id}` | admin, teacher | Cambia estado (`active/completed/dropped`) |
-| Matriculas | `DELETE /api/v1/enrollments/{id}` | admin, teacher | Elimina matricula |
-| Notas | `GET /api/v1/grades` | cualquiera autenticado | Lista, filtro `enrollment_id`. Un estudiante solo ve sus notas |
-| Notas | `POST /api/v1/grades` | admin, teacher | Registra nota; avisa al estudiante por WebSocket y por email (Resend) |
-| Notas | `PUT /api/v1/grades/{id}` | admin, teacher | Actualiza nota |
-| Notas | `DELETE /api/v1/grades/{id}` | admin, teacher | Elimina nota |
+| Matriculas | `GET /api/v1/enrollments` | cualquiera autenticado | Lista, filtros `student_id`/`course_id`. Un estudiante solo recibe las suyas y un profesor, las de sus cursos. Incluye `student_name` y `course_name` |
+| Matriculas | `POST /api/v1/enrollments` | admin; teacher en sus cursos; student solo a si mismo | Matricula a un estudiante en un curso |
+| Matriculas | `PUT /api/v1/enrollments/{id}` | admin; teacher en sus cursos | Cambia estado (`active/completed/dropped`) |
+| Matriculas | `DELETE /api/v1/enrollments/{id}` | admin; teacher en sus cursos | Elimina matricula |
+| Notas | `GET /api/v1/grades` | cualquiera autenticado | Lista, filtro `enrollment_id`. Un estudiante solo ve sus notas; un profesor, las de sus cursos |
+| Notas | `POST /api/v1/grades` | admin; teacher en sus cursos | Registra nota; avisa al estudiante por WebSocket y por email (Resend) |
+| Notas | `PUT /api/v1/grades/{id}` | admin; teacher en sus cursos | Actualiza nota |
+| Notas | `DELETE /api/v1/grades/{id}` | admin; teacher en sus cursos | Elimina nota |
 | Websocket | `WS /ws/notifications?token=<jwt>` | cualquiera autenticado | Notificaciones en tiempo real (p.ej. `new_grade`) |
 | Salud | `GET /health` | publico | Liveness check |
 
@@ -67,7 +68,7 @@ usan codigos HTTP semanticos (ver `app/exceptions.py`):
 | Codigo | Significado en esta API |
 |---|---|
 | 401 | Token ausente/invalido o credenciales incorrectas |
-| 403 | Usuario autenticado pero sin permisos para la accion (rol incorrecto, o un estudiante actuando sobre datos de otro) |
+| 403 | Usuario autenticado pero sin permisos para la accion (rol incorrecto, un estudiante actuando sobre datos de otro, o un profesor sobre un curso que no imparte) |
 | 404 | Recurso no encontrado |
 | 409 | Conflicto (email duplicado, matricula duplicada) |
 | 422 | Error de validacion de payload (tipos, rangos, campos requeridos) |

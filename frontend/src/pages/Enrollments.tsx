@@ -7,6 +7,7 @@ import {
   type EnrollmentStatus,
   type Page,
   type Student,
+  type Teacher,
 } from "../api/client";
 import { useAuth } from "../context/AuthContext";
 
@@ -33,7 +34,16 @@ export function Enrollments() {
   };
 
   useEffect(() => {
-    api.get<Page<Course>>("/courses", { params: { limit: 100 } }).then((res) => setCourses(res.data.items));
+    // Un profesor solo puede matricular en los cursos que imparte.
+    const loadCourses = async () => {
+      const teacherId =
+        role === "teacher" ? (await api.get<Teacher>("/teachers/me")).data.id : undefined;
+      const { data } = await api.get<Page<Course>>("/courses", {
+        params: { limit: 100, teacher_id: teacherId },
+      });
+      setCourses(data.items);
+    };
+    loadCourses();
     if (isStudent) {
       api.get<Student>("/students/me").then((res) => setMyStudentId(res.data.id));
     } else if (isStaff) {

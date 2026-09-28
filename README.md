@@ -133,7 +133,7 @@ Detalle completo de endpoints, roles y códigos de error en [docs/api.md](docs/a
 | Diagrama ER de la base de datos | [docs/er-diagram.md](docs/er-diagram.md) |
 | Repositorio en GitHub con código fuente | este repositorio |
 | Documentación de la API (Swagger) | `/docs` en el servidor + [docs/api.md](docs/api.md) |
-| Suite de tests completa y pasando | `backend/tests/` (79 tests, 97% cobertura) + `frontend/src/**/*.test.tsx` (12 tests) + `frontend/e2e/` (3 escenarios Playwright) |
+| Suite de tests completa y pasando | `backend/tests/` (84 tests, 97% cobertura) + `frontend/src/**/*.test.tsx` (13 tests) + `frontend/e2e/` (3 escenarios Playwright) |
 | Documento de retrospectiva | [docs/retrospective.md](docs/retrospective.md) |
 | Tablero Kanban con historias de usuario | [GitHub Projects](https://github.com/users/costanna/projects/2) + [docs/kanban.md](docs/kanban.md) |
 | Gestión de equipo / roles / ceremonias | [docs/team.md](docs/team.md) |
@@ -144,14 +144,14 @@ Detalle completo de endpoints, roles y códigos de error en [docs/api.md](docs/a
 
 - **🟢 Esencial**: 7 tablas relacionadas · CRUD completo · tests unitarios por endpoint · Markdown · Kanban · variables de entorno · logging básico · manejo de excepciones.
 - **🟡 Medio**: 7 tablas (>5) · Swagger interactivo · errores HTTP semánticos (401/403/404/409/422/500) · exportación a CSV (estudiantes y cursos) · paginación y filtrado en los GET.
-- **🟠 Avanzado**: JWT + roles (admin/teacher/student) con control de propiedad (un estudiante solo accede a sus datos) · caché en memoria con invalidación automática · WebSocket de notificaciones en tiempo real.
+- **🟠 Avanzado**: JWT + roles (admin/teacher/student) con control de propiedad (un estudiante solo accede a sus datos y un profesor solo gestiona sus cursos) · caché en memoria con invalidación automática · WebSocket de notificaciones en tiempo real.
 - **🔴 Experto**: Docker + docker-compose (API + PostgreSQL + frontend) · interfaz de usuario (SPA en React) · **despliegue real en la nube** (Neon + Render + Vercel, ver [docs/deployment.md](docs/deployment.md)) · **integración con un servicio externo** (emails de notas con Resend).
 
 ## 🌟 Competencias demostradas
 
 - **Diseñar y gestionar bases de datos**: modelo relacional de 7 tablas con relaciones 1:1, 1:N y N:M, migraciones versionadas con Alembic (verificadas contra PostgreSQL real, en local y en Neon), restricciones de integridad (`UNIQUE`, `ON DELETE CASCADE/SET NULL`). Ver [docs/er-diagram.md](docs/er-diagram.md).
 - **Back-end de aplicaciones**: API REST en capas (routers → services → repositories → models), JWT + RBAC, caché, WebSockets. Ver [docs/adr/](docs/adr/).
-- **Implementar tests de calidad**: 79 tests de backend (97% de cobertura, incluidos tests de permisos y del servicio de email con transporte simulado), 12 tests de frontend (Vitest + Testing Library) y 3 escenarios end-to-end con Playwright; todo se ejecuta en CI.
+- **Implementar tests de calidad**: 84 tests de backend (97% de cobertura, incluidos tests de permisos y del servicio de email con transporte simulado), 13 tests de frontend (Vitest + Testing Library) y 3 escenarios end-to-end con Playwright; todo se ejecuta en CI.
 - **Gestionar equipos técnicos**: roles, ceremonias Scrum y comunicación documentados en [docs/team.md](docs/team.md).
 - **Configura y automatiza su entorno de trabajo**: pre-commit, CI/CD, `.editorconfig`, configuración de VS Code, y uso de IA (Claude Code) como asistente de desarrollo (documentado en [docs/team.md](docs/team.md)).
 - **Despliegue de aplicaciones**: Docker multi-servicio con `docker-compose` (verificado de extremo a extremo) y despliegue en la nube con Neon + Render + Vercel ([docs/deployment.md](docs/deployment.md)).

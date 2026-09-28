@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 from app.core.security import decode_access_token
 from app.db.session import get_db
 from app.exceptions import ForbiddenError, UnauthorizedError
+from app.models.course import Course
 from app.models.user import User, UserRole
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
@@ -56,3 +57,20 @@ def own_student_id(user: User) -> int | None:
     if user.role != UserRole.STUDENT:
         return None
     return user.student_profile.id if user.student_profile else -1
+
+
+def own_teacher_id(user: User) -> int | None:
+    """teacher_id al que queda limitado un usuario con rol profesor.
+
+    Devuelve None para admin/student. Un profesor sin perfil recibe -1.
+    """
+    if user.role != UserRole.TEACHER:
+        return None
+    return user.teacher_profile.id if user.teacher_profile else -1
+
+
+def ensure_can_manage_course(user: User, course: Course) -> None:
+    """Un profesor solo gestiona matriculas y notas de los cursos que imparte."""
+    teacher_id = own_teacher_id(user)
+    if teacher_id is not None and course.teacher_id != teacher_id:
+        raise ForbiddenError("Solo puedes gestionar los cursos que impartes.")
