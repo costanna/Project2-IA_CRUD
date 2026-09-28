@@ -27,6 +27,7 @@ services:
       SECRET_KEY: ${SECRET_KEY:-change-me-in-production}
       ENVIRONMENT: production
       CORS_ORIGINS: '["http://localhost:5173","http://localhost:8080"]'
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
     ports:
       - "8000:8000"
 
