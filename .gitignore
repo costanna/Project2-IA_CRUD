@@ -23,4 +23,3 @@ dist/
 Thumbs.db
 .neon
 backend/e2e.db
-docs/

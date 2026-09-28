@@ -3,7 +3,7 @@ import { API_URL } from "../playwright.config";
 
 export { API_URL };
 
-export const ADMIN = { email: "admin@e2e.dev", password: "admin1234" };
+export const ADMIN = { email: "admin@e2e.dev", password: "e2e-admin-pass" };
 
 // La primera cuenta del sistema puede registrarse como admin (arranque
 // inicial). Si ya existe, la API responde 409 y se ignora.

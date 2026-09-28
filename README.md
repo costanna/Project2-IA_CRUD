@@ -16,10 +16,11 @@ Este repositorio implementa esa solución: una **API REST** (FastAPI + PostgreSQ
 | Base de datos | PostgreSQL (producción) / SQLite (tests) |
 | Autenticación | JWT (`python-jose`) + roles (`admin`, `teacher`, `student`) |
 | Tiempo real | WebSockets (notificación de notas nuevas) |
+| Servicios externos | Resend (email al estudiante cuando recibe una nota) |
 | Frontend | React 18 + TypeScript + Vite + React Router |
-| Tests | pytest (unit + integración), 91% cobertura en `app/` |
+| Tests | pytest (unit + integración, 97% cobertura), Vitest + Testing Library, Playwright (end-to-end) |
 | Calidad de código | black, isort, flake8, pre-commit |
-| CI/CD | GitHub Actions (lint + tests con PostgreSQL real, build de frontend) |
+| CI/CD | GitHub Actions (lint + tests con PostgreSQL real, build de frontend, tests end-to-end) |
 | Contenerización | Docker + docker-compose (db + backend + frontend) |
 
 ## 🗂️ Estructura del repositorio
@@ -35,7 +36,9 @@ backend/          API REST (FastAPI) — ver backend/app/
     routers/      endpoints REST + WebSocket
   alembic/        migraciones de base de datos
   tests/          unit/ e integration/
+  e2e_server.py   arranca la API para los tests end-to-end
 frontend/         SPA React + Vite que consume la API
+  e2e/            tests end-to-end (Playwright)
 docs/             diagrama ER, documentación de API, Kanban, retrospectiva, ADRs
 .github/workflows/ci.yml   pipeline de CI
 docker-compose.yml         levanta todo el stack con un comando
@@ -86,9 +89,19 @@ npm run dev                   # http://localhost:5173
 ### Ejecutar los tests
 
 ```bash
+# Backend: unitarios + integración (SQLite temporal, no requiere Postgres)
 cd backend
 pip install -r requirements-dev.txt
-pytest                        # usa SQLite temporal, no requiere Postgres
+pytest
+
+# Frontend: tests de componentes
+cd frontend
+npm run test
+
+# End-to-end: levanta API + frontend reales y los recorre con Chromium
+cd frontend
+npx playwright install chromium   # solo la primera vez
+npm run test:e2e
 ```
 
 ### Linting y formateo
@@ -107,7 +120,7 @@ pre-commit install
 
 ## 🔑 Primeros pasos con la API
 
-1. Regístrate como admin: `POST /api/v1/auth/register` con `{"email": "...", "password": "...", "role": "admin"}`.
+1. Regístrate como admin: `POST /api/v1/auth/register` con `{"email": "...", "password": "...", "role": "admin"}`. Solo la primera cuenta puede crearse así; las siguientes cuentas de admin o profesor las crea un admin.
 2. Inicia sesión: `POST /api/v1/auth/login` (form `username`/`password`) → devuelve un JWT.
 3. Usa el botón **Authorize** de Swagger (`/docs`) con `Bearer <token>` para probar el resto de endpoints.
 
@@ -120,7 +133,7 @@ Detalle completo de endpoints, roles y códigos de error en [docs/api.md](docs/a
 | Diagrama ER de la base de datos | [docs/er-diagram.md](docs/er-diagram.md) |
 | Repositorio en GitHub con código fuente | este repositorio |
 | Documentación de la API (Swagger) | `/docs` en el servidor + [docs/api.md](docs/api.md) |
-| Suite de tests completa y pasando | `backend/tests/` (63 tests, 98% cobertura) + `frontend/src/**/*.test.tsx` (6 tests) |
+| Suite de tests completa y pasando | `backend/tests/` (79 tests, 97% cobertura) + `frontend/src/**/*.test.tsx` (12 tests) + `frontend/e2e/` (3 escenarios Playwright) |
 | Documento de retrospectiva | [docs/retrospective.md](docs/retrospective.md) |
 | Tablero Kanban con historias de usuario | [docs/kanban.md](docs/kanban.md) |
 | Gestión de equipo / roles / ceremonias | [docs/team.md](docs/team.md) |
@@ -131,20 +144,20 @@ Detalle completo de endpoints, roles y códigos de error en [docs/api.md](docs/a
 
 - **🟢 Esencial**: 7 tablas relacionadas · CRUD completo · tests unitarios por endpoint · Markdown · Kanban · variables de entorno · logging básico · manejo de excepciones.
 - **🟡 Medio**: 7 tablas (>5) · Swagger interactivo · errores HTTP semánticos (401/403/404/409/422/500) · exportación a CSV (estudiantes y cursos) · paginación y filtrado en los GET.
-- **🟠 Avanzado**: JWT + roles (admin/teacher/student) · caché en memoria con invalidación automática · WebSocket de notificaciones en tiempo real.
-- **🔴 Experto**: Docker + docker-compose (API + PostgreSQL + frontend) · interfaz de usuario (SPA en React) · **despliegue real en la nube** (Neon + Render + Vercel, ver [docs/deployment.md](docs/deployment.md)).
+- **🟠 Avanzado**: JWT + roles (admin/teacher/student) con control de propiedad (un estudiante solo accede a sus datos) · caché en memoria con invalidación automática · WebSocket de notificaciones en tiempo real.
+- **🔴 Experto**: Docker + docker-compose (API + PostgreSQL + frontend) · interfaz de usuario (SPA en React) · **despliegue real en la nube** (Neon + Render + Vercel, ver [docs/deployment.md](docs/deployment.md)) · **integración con un servicio externo** (emails de notas con Resend).
 
 ## 🌟 Competencias demostradas
 
 - **Diseñar y gestionar bases de datos**: modelo relacional de 7 tablas con relaciones 1:1, 1:N y N:M, migraciones versionadas con Alembic (verificadas contra PostgreSQL real, en local y en Neon), restricciones de integridad (`UNIQUE`, `ON DELETE CASCADE/SET NULL`). Ver [docs/er-diagram.md](docs/er-diagram.md).
 - **Back-end de aplicaciones**: API REST en capas (routers → services → repositories → models), JWT + RBAC, caché, WebSockets. Ver [docs/adr/](docs/adr/).
-- **Implementar tests de calidad**: 63 tests backend (98% cobertura) + 6 tests de frontend (Vitest + Testing Library), ejecutados en CI contra PostgreSQL real.
+- **Implementar tests de calidad**: 79 tests de backend (97% de cobertura, incluidos tests de permisos y del servicio de email con transporte simulado), 12 tests de frontend (Vitest + Testing Library) y 3 escenarios end-to-end con Playwright; todo se ejecuta en CI.
 - **Gestionar equipos técnicos**: roles, ceremonias Scrum y comunicación documentados en [docs/team.md](docs/team.md).
 - **Configura y automatiza su entorno de trabajo**: pre-commit, CI/CD, `.editorconfig`, configuración de VS Code, y uso de IA (Claude Code) como asistente de desarrollo (documentado en [docs/team.md](docs/team.md)).
 - **Despliegue de aplicaciones**: Docker multi-servicio con `docker-compose` (verificado de extremo a extremo) y despliegue en la nube con Neon + Render + Vercel ([docs/deployment.md](docs/deployment.md)).
-- **Desarrollo de interfaces dinámicas**: SPA en React con rutas protegidas por rol, paginación, formularios y notificaciones en tiempo real vía WebSocket.
+- **Desarrollo de interfaces dinámicas**: SPA en React con CRUD completo (edición en línea en todas las tablas), rutas protegidas por rol, relaciones por nombre (profesor de un curso, matrículas), paginación, filtros, exportación CSV y notificaciones en tiempo real vía WebSocket.
 - **Fundamentos, patrones y calidad de código**: patrón Repository, inyección de dependencias, DTOs con Pydantic, linters automatizados. Ver [docs/adr/0001-arquitectura-en-capas.md](docs/adr/0001-arquitectura-en-capas.md).
 
 ## 📅 Plazos
 
-Dos semanas (2 sprints de 1 semana — ver [docs/kanban.md](docs/kanban.md)).
+Dos semanas (2 sprints de 1 semana) más un sprint corto de cierre tras la demo — ver [docs/kanban.md](docs/kanban.md).
