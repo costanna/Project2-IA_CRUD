@@ -10,7 +10,6 @@ de la pagina para que nada se salga de los margenes.
 """
 
 import os
-from datetime import date
 from pathlib import Path
 
 from reportlab.lib import colors
@@ -205,9 +204,9 @@ story += [
     Spacer(1, 6),
     Paragraph("Proyecto del Módulo 1: IA-Project-CRUD", S["center"]),
     Spacer(1, 6),
-    Paragraph("Autoría: costanna", S["center"]),
+    Paragraph("Autoría: Anna Costa (costanna)", S["center"]),
     Spacer(1, 6),
-    Paragraph(date.today().strftime("%d/%m/%Y"), S["center"]),
+    Paragraph("30/09/2026", S["center"]),
     PageBreak(),
 ]
 
@@ -783,7 +782,7 @@ def build():
     doc = MemoriaDoc(
         str(OUT), pagesize=A4, leftMargin=MARGIN, rightMargin=MARGIN,
         topMargin=MARGIN, bottomMargin=MARGIN + FOOTER_H,
-        title="Academia F5 — Memoria del proyecto", author="costanna",
+        title="Academia F5 — Memoria del proyecto", author="Anna Costa (costanna)",
     )
     doc.multiBuild(story, onFirstPage=on_page, onLaterPages=on_page)
     print(f"PDF generado en {OUT}")
