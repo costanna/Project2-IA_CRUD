@@ -13,11 +13,13 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Si el token expira o es invalido, forzamos vuelta al login.
+// Si el token expira o es invalido, forzamos vuelta al login. Un 401 del
+// propio login (credenciales incorrectas) lo gestiona la pantalla de login.
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    const isLoginRequest = error.config?.url?.includes("/auth/login");
+    if (error.response?.status === 401 && !isLoginRequest) {
       localStorage.removeItem("token");
       localStorage.removeItem("role");
       window.location.href = "/login";
