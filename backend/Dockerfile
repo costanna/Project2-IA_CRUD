@@ -14,6 +14,8 @@ COPY . .
 
 EXPOSE 8000
 
-# Aplica migraciones y arranca la API. En produccion se ejecuta con
-# varios workers detras de un proxy (nginx/traefik/ALB, etc.).
-CMD ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"]
+# Aplica migraciones y arranca la API. Escucha en $PORT si el proveedor lo
+# define (Render, Heroku, etc. asignan el puerto dinamicamente) y cae a
+# 8000 en local/docker-compose. En produccion se ejecuta con varios
+# workers detras de un proxy (nginx/traefik/ALB, etc.).
+CMD ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]

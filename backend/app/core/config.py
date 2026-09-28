@@ -8,6 +8,7 @@ entorno para datos sensibles").
 
 from functools import lru_cache
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -21,6 +22,21 @@ class Settings(BaseSettings):
 
     # Base de datos
     database_url: str = "sqlite:///./academia.db"
+
+    @field_validator("database_url")
+    @classmethod
+    def _normalize_database_url(cls, value: str) -> str:
+        """Proveedores como Neon, Render o Heroku entregan cadenas de
+        conexion con el esquema `postgres://`, que SQLAlchemy 1.4+ ya no
+        reconoce (espera `postgresql://` o, con el driver explicito,
+        `postgresql+psycopg2://`). Normalizamos aqui para poder pegar la
+        cadena de Neon tal cual en la variable de entorno sin editarla.
+        """
+        if value.startswith("postgres://"):
+            return value.replace("postgres://", "postgresql+psycopg2://", 1)
+        if value.startswith("postgresql://"):
+            return value.replace("postgresql://", "postgresql+psycopg2://", 1)
+        return value
 
     # Seguridad / JWT
     secret_key: str = "change-me-in-.env"

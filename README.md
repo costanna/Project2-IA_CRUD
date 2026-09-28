@@ -57,6 +57,11 @@ docker compose up --build
 - API: http://localhost:8000/docs (Swagger)
 - Frontend: http://localhost:8080
 
+### Opción C — Nube (Neon + Render + Vercel)
+
+Para una demo o presentación sin depender de tu máquina: guía paso a paso
+en [docs/deployment.md](docs/deployment.md).
+
 ### Opción B — Desarrollo local (backend)
 
 ```bash
@@ -115,27 +120,28 @@ Detalle completo de endpoints, roles y códigos de error en [docs/api.md](docs/a
 | Diagrama ER de la base de datos | [docs/er-diagram.md](docs/er-diagram.md) |
 | Repositorio en GitHub con código fuente | este repositorio |
 | Documentación de la API (Swagger) | `/docs` en el servidor + [docs/api.md](docs/api.md) |
-| Suite de tests completa y pasando | `backend/tests/` (45 tests, 91% cobertura) |
+| Suite de tests completa y pasando | `backend/tests/` (63 tests, 98% cobertura) + `frontend/src/**/*.test.tsx` (6 tests) |
 | Documento de retrospectiva | [docs/retrospective.md](docs/retrospective.md) |
 | Tablero Kanban con historias de usuario | [docs/kanban.md](docs/kanban.md) |
 | Gestión de equipo / roles / ceremonias | [docs/team.md](docs/team.md) |
 | Decisiones de arquitectura | [docs/adr/](docs/adr/) |
+| Guía de despliegue en la nube | [docs/deployment.md](docs/deployment.md) |
 
 ## 🏆 Niveles de entrega cubiertos
 
 - **🟢 Esencial**: 7 tablas relacionadas · CRUD completo · tests unitarios por endpoint · Markdown · Kanban · variables de entorno · logging básico · manejo de excepciones.
 - **🟡 Medio**: 7 tablas (>5) · Swagger interactivo · errores HTTP semánticos (401/403/404/409/422/500) · exportación a CSV (estudiantes y cursos) · paginación y filtrado en los GET.
 - **🟠 Avanzado**: JWT + roles (admin/teacher/student) · caché en memoria con invalidación automática · WebSocket de notificaciones en tiempo real.
-- **🔴 Experto**: Docker + docker-compose (API + PostgreSQL + frontend) · interfaz de usuario (SPA en React) · base preparada para despliegue en la nube (imágenes Docker independientes por servicio).
+- **🔴 Experto**: Docker + docker-compose (API + PostgreSQL + frontend) · interfaz de usuario (SPA en React) · **despliegue real en la nube** (Neon + Render + Vercel, ver [docs/deployment.md](docs/deployment.md)).
 
 ## 🌟 Competencias demostradas
 
-- **Diseñar y gestionar bases de datos**: modelo relacional de 7 tablas con relaciones 1:1, 1:N y N:M, migraciones versionadas con Alembic, restricciones de integridad (`UNIQUE`, `ON DELETE CASCADE/SET NULL`). Ver [docs/er-diagram.md](docs/er-diagram.md).
+- **Diseñar y gestionar bases de datos**: modelo relacional de 7 tablas con relaciones 1:1, 1:N y N:M, migraciones versionadas con Alembic (verificadas contra PostgreSQL real, en local y en Neon), restricciones de integridad (`UNIQUE`, `ON DELETE CASCADE/SET NULL`). Ver [docs/er-diagram.md](docs/er-diagram.md).
 - **Back-end de aplicaciones**: API REST en capas (routers → services → repositories → models), JWT + RBAC, caché, WebSockets. Ver [docs/adr/](docs/adr/).
-- **Implementar tests de calidad**: 45 tests unitarios + integración, 91% cobertura, ejecutados en CI contra PostgreSQL real.
+- **Implementar tests de calidad**: 63 tests backend (98% cobertura) + 6 tests de frontend (Vitest + Testing Library), ejecutados en CI contra PostgreSQL real.
 - **Gestionar equipos técnicos**: roles, ceremonias Scrum y comunicación documentados en [docs/team.md](docs/team.md).
 - **Configura y automatiza su entorno de trabajo**: pre-commit, CI/CD, `.editorconfig`, configuración de VS Code, y uso de IA (Claude Code) como asistente de desarrollo (documentado en [docs/team.md](docs/team.md)).
-- **Despliegue de aplicaciones**: Docker multi-servicio con `docker-compose`, migraciones automáticas al arrancar el contenedor.
+- **Despliegue de aplicaciones**: Docker multi-servicio con `docker-compose` (verificado de extremo a extremo) y despliegue en la nube con Neon + Render + Vercel ([docs/deployment.md](docs/deployment.md)).
 - **Desarrollo de interfaces dinámicas**: SPA en React con rutas protegidas por rol, paginación, formularios y notificaciones en tiempo real vía WebSocket.
 - **Fundamentos, patrones y calidad de código**: patrón Repository, inyección de dependencias, DTOs con Pydantic, linters automatizados. Ver [docs/adr/0001-arquitectura-en-capas.md](docs/adr/0001-arquitectura-en-capas.md).
 
