@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, BackgroundTasks, Depends, Query
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
@@ -7,6 +7,7 @@ from app.models.grade import Grade
 from app.models.user import User, UserRole
 from app.schemas.common import Page
 from app.schemas.grade import GradeCreate, GradeRead, GradeUpdate
+from app.services.email_service import EmailService
 from app.services.grade_service import GradeService
 
 router = APIRouter(prefix="/grades", tags=["grades"])
@@ -30,8 +31,21 @@ def list_grades(
 
 
 @router.post("", response_model=GradeRead, status_code=201, dependencies=[Depends(staff_only)])
-async def create_grade(data: GradeCreate, db: Session = Depends(get_db)) -> Grade:
-    return await GradeService(db).create(data)
+async def create_grade(
+    data: GradeCreate, background_tasks: BackgroundTasks, db: Session = Depends(get_db)
+) -> Grade:
+    grade = await GradeService(db).create(data)
+    # El email se envia tras responder, para no hacer esperar al profesor.
+    enrollment = grade.enrollment
+    background_tasks.add_task(
+        EmailService().send_new_grade,
+        to=enrollment.student.user.email,
+        student_name=enrollment.student.first_name,
+        course=enrollment.course.name,
+        evaluation=grade.evaluation_name,
+        score=grade.score,
+    )
+    return grade
 
 
 @router.put("/{grade_id}", response_model=GradeRead, dependencies=[Depends(staff_only)])

@@ -28,6 +28,10 @@ services:
         value: "60"
       - key: CORS_ORIGINS
         sync: false # p.ej. ["https://tu-app.vercel.app"] (rellenar tras desplegar el frontend)
+      - key: RESEND_API_KEY
+        sync: false # opcional: clave de Resend para enviar emails de notas
+      - key: EMAIL_FROM
+        value: "Academia F5 <onboarding@resend.dev>"
       - key: CACHE_TTL_SECONDS
         value: "30"
       - key: LOG_LEVEL
