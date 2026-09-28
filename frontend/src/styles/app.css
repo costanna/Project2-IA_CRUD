@@ -199,6 +199,52 @@ button:disabled {
   font-size: 0.9rem;
 }
 
+.table-wrap {
+  overflow-x: auto;
+}
+
+.row-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.row-actions input,
+.row-actions select {
+  min-width: 0;
+  width: 100%;
+}
+
+button.secondary {
+  background: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+}
+
+button.secondary:hover {
+  background: var(--color-bg);
+}
+
+button.danger {
+  background: var(--color-danger);
+}
+
+button.danger:hover {
+  background: #b91c1c;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.toolbar h1 {
+  margin: 0;
+}
+
 .pagination {
   display: flex;
   align-items: center;

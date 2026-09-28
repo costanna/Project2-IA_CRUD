@@ -7,6 +7,7 @@ import { Dashboard } from "./pages/Dashboard";
 import { Enrollments } from "./pages/Enrollments";
 import { Grades } from "./pages/Grades";
 import { Login } from "./pages/Login";
+import { Schedules } from "./pages/Schedules";
 import { Students } from "./pages/Students";
 import { Teachers } from "./pages/Teachers";
 
@@ -51,6 +52,16 @@ export default function App() {
             <ProtectedRoute roles={["admin", "teacher"]}>
               <Layout>
                 <Teachers />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/schedules"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <Schedules />
               </Layout>
             </ProtectedRoute>
           }

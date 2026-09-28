@@ -1,18 +1,29 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { api, type Page, type Student } from "../api/client";
+import { api, downloadCsv, type Page, type Student } from "../api/client";
 import { PasswordInput } from "../components/PasswordInput";
 import { useAuth } from "../context/AuthContext";
+
+const emptyForm = { email: "", password: "", first_name: "", last_name: "", phone: "", birth_date: "" };
+
+interface EditState {
+  id: number;
+  first_name: string;
+  last_name: string;
+  phone: string;
+  birth_date: string;
+}
 
 export function Students() {
   const { role } = useAuth();
   const [page, setPage] = useState<Page<Student> | null>(null);
-  const [form, setForm] = useState({ email: "", password: "", first_name: "", last_name: "" });
+  const [form, setForm] = useState(emptyForm);
+  const [editing, setEditing] = useState<EditState | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const canCreate = role === "admin";
+  const canManage = role === "admin";
 
   const load = async () => {
-    const { data } = await api.get<Page<Student>>("/students", { params: { skip: 0, limit: 50 } });
+    const { data } = await api.get<Page<Student>>("/students", { params: { skip: 0, limit: 100 } });
     setPage(data);
   };
 
@@ -24,24 +35,60 @@ export function Students() {
     event.preventDefault();
     setError(null);
     try {
-      await api.post("/students", form);
-      setForm({ email: "", password: "", first_name: "", last_name: "" });
+      await api.post("/students", {
+        ...form,
+        phone: form.phone || null,
+        birth_date: form.birth_date || null,
+      });
+      setForm(emptyForm);
       await load();
     } catch {
       setError("No se pudo crear el estudiante (revisa que el email no exista).");
     }
   };
 
-  const handleDelete = async (id: number) => {
-    await api.delete(`/students/${id}`);
+  const startEdit = (s: Student) =>
+    setEditing({
+      id: s.id,
+      first_name: s.first_name,
+      last_name: s.last_name,
+      phone: s.phone ?? "",
+      birth_date: s.birth_date ?? "",
+    });
+
+  const handleSave = async () => {
+    if (!editing) return;
+    setError(null);
+    try {
+      await api.put(`/students/${editing.id}`, {
+        first_name: editing.first_name,
+        last_name: editing.last_name,
+        phone: editing.phone || null,
+        birth_date: editing.birth_date || null,
+      });
+      setEditing(null);
+      await load();
+    } catch {
+      setError("No se pudieron guardar los cambios.");
+    }
+  };
+
+  const handleDelete = async (s: Student) => {
+    if (!window.confirm(`¿Borrar a ${s.first_name} ${s.last_name}? Se eliminara tambien su cuenta.`)) return;
+    await api.delete(`/students/${s.id}`);
     await load();
   };
 
   return (
     <div className="page">
-      <h1>Estudiantes</h1>
+      <div className="toolbar">
+        <h1>Estudiantes</h1>
+        <button className="secondary" onClick={() => downloadCsv("/students/export", "students.csv")}>
+          Exportar CSV
+        </button>
+      </div>
 
-      {canCreate && (
+      {canManage && (
         <form className="stacked-form" onSubmit={handleCreate}>
           <input
             placeholder="Email"
@@ -68,37 +115,105 @@ export function Students() {
             value={form.last_name}
             onChange={(e) => setForm({ ...form, last_name: e.target.value })}
           />
+          <input
+            placeholder="Telefono"
+            value={form.phone}
+            onChange={(e) => setForm({ ...form, phone: e.target.value })}
+          />
+          <input
+            type="date"
+            aria-label="Fecha de nacimiento"
+            value={form.birth_date}
+            onChange={(e) => setForm({ ...form, birth_date: e.target.value })}
+          />
           <button type="submit">Crear estudiante</button>
         </form>
       )}
       {error && <p className="error">{error}</p>}
 
-      <table>
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Nombre</th>
-            <th>Telefono</th>
-            {canCreate && <th />}
-          </tr>
-        </thead>
-        <tbody>
-          {page?.items.map((s) => (
-            <tr key={s.id}>
-              <td>{s.id}</td>
-              <td>
-                {s.first_name} {s.last_name}
-              </td>
-              <td>{s.phone ?? "-"}</td>
-              {canCreate && (
-                <td>
-                  <button onClick={() => handleDelete(s.id)}>Borrar</button>
-                </td>
-              )}
+      <div className="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>Apellidos</th>
+              <th>Email</th>
+              <th>Telefono</th>
+              <th>Nacimiento</th>
+              {canManage && <th />}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {page?.items.map((s) =>
+              editing?.id === s.id ? (
+                <tr key={s.id}>
+                  <td>{s.id}</td>
+                  <td>
+                    <input
+                      aria-label="Nombre"
+                      value={editing.first_name}
+                      onChange={(e) => setEditing({ ...editing, first_name: e.target.value })}
+                    />
+                  </td>
+                  <td>
+                    <input
+                      aria-label="Apellidos"
+                      value={editing.last_name}
+                      onChange={(e) => setEditing({ ...editing, last_name: e.target.value })}
+                    />
+                  </td>
+                  <td>{s.email}</td>
+                  <td>
+                    <input
+                      aria-label="Telefono"
+                      value={editing.phone}
+                      onChange={(e) => setEditing({ ...editing, phone: e.target.value })}
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="date"
+                      aria-label="Fecha de nacimiento"
+                      value={editing.birth_date}
+                      onChange={(e) => setEditing({ ...editing, birth_date: e.target.value })}
+                    />
+                  </td>
+                  <td>
+                    <div className="row-actions">
+                      <button onClick={handleSave}>Guardar</button>
+                      <button className="secondary" onClick={() => setEditing(null)}>
+                        Cancelar
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                <tr key={s.id}>
+                  <td>{s.id}</td>
+                  <td>{s.first_name}</td>
+                  <td>{s.last_name}</td>
+                  <td>{s.email}</td>
+                  <td>{s.phone ?? "-"}</td>
+                  <td>{s.birth_date ?? "-"}</td>
+                  {canManage && (
+                    <td>
+                      <div className="row-actions">
+                        <button className="secondary" onClick={() => startEdit(s)}>
+                          Editar
+                        </button>
+                        <button className="danger" onClick={() => handleDelete(s)}>
+                          Borrar
+                        </button>
+                      </div>
+                    </td>
+                  )}
+                </tr>
+              )
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
