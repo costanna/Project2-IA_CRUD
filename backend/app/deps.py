@@ -13,6 +13,7 @@ from app.exceptions import ForbiddenError, UnauthorizedError
 from app.models.user import User, UserRole
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
+optional_oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login", auto_error=False)
 
 
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> User:
@@ -35,3 +36,23 @@ def require_roles(*roles: UserRole) -> Callable[[User], User]:
         return current_user
 
     return dependency
+
+
+def get_optional_user(
+    token: str | None = Depends(optional_oauth2_scheme), db: Session = Depends(get_db)
+) -> User | None:
+    """Como `get_current_user`, pero devuelve None si la peticion no trae token."""
+    if not token:
+        return None
+    return get_current_user(token, db)
+
+
+def own_student_id(user: User) -> int | None:
+    """student_id al que queda limitado un usuario con rol estudiante.
+
+    Devuelve None para admin/teacher (sin limite). Un estudiante sin perfil
+    recibe -1, que no coincide con ningun registro.
+    """
+    if user.role != UserRole.STUDENT:
+        return None
+    return user.student_profile.id if user.student_profile else -1

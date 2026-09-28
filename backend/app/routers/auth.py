@@ -3,7 +3,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
-from app.deps import get_current_user
+from app.deps import get_current_user, get_optional_user
 from app.models.user import User
 from app.schemas.user import Token, UserCreate, UserRead
 from app.services.auth_service import AuthService
@@ -12,8 +12,14 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 
 @router.post("/register", response_model=UserRead, status_code=201)
-def register(data: UserCreate, db: Session = Depends(get_db)) -> User:
-    return AuthService(db).register(data)
+def register(
+    data: UserCreate,
+    db: Session = Depends(get_db),
+    current_user: User | None = Depends(get_optional_user),
+) -> User:
+    """Registro publico con rol `student`. Crear `admin`/`teacher` requiere
+    ser admin, salvo la primera cuenta del sistema (arranque inicial)."""
+    return AuthService(db).register(data, requested_by=current_user)
 
 
 @router.post("/login", response_model=Token)

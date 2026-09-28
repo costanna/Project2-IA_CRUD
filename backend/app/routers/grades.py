@@ -2,9 +2,9 @@ from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
-from app.deps import get_current_user, require_roles
+from app.deps import get_current_user, own_student_id, require_roles
 from app.models.grade import Grade
-from app.models.user import UserRole
+from app.models.user import User, UserRole
 from app.schemas.common import Page
 from app.schemas.grade import GradeCreate, GradeRead, GradeUpdate
 from app.services.grade_service import GradeService
@@ -14,14 +14,18 @@ router = APIRouter(prefix="/grades", tags=["grades"])
 staff_only = require_roles(UserRole.ADMIN, UserRole.TEACHER)
 
 
-@router.get("", response_model=Page[GradeRead], dependencies=[Depends(get_current_user)])
+@router.get("", response_model=Page[GradeRead])
 def list_grades(
     skip: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=100),
     enrollment_id: int | None = Query(default=None),
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ) -> Page:
-    items, total = GradeService(db).list(skip, limit, enrollment_id=enrollment_id)
+    # Un estudiante solo ve las notas de sus propias matriculas.
+    items, total = GradeService(db).list(
+        skip, limit, enrollment_id=enrollment_id, student_id=own_student_id(current_user)
+    )
     return Page(items=items, total=total, skip=skip, limit=limit)
 
 

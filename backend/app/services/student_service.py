@@ -49,7 +49,9 @@ class StudentService:
 
     def delete(self, student_id: int) -> None:
         student = self.get(student_id)
-        self.students.delete(student)
+        # Borrar la cuenta arrastra el perfil (ON DELETE CASCADE) y evita
+        # que quede un usuario huerfano que aun pueda iniciar sesion.
+        self.users.delete(student.user)
 
     def export_csv(self) -> str:
         """CSV con todos los estudiantes (Nivel Medio: exportacion a CSV)."""

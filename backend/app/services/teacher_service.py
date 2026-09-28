@@ -45,4 +45,6 @@ class TeacherService:
 
     def delete(self, teacher_id: int) -> None:
         teacher = self.get(teacher_id)
-        self.teachers.delete(teacher)
+        # Borrar la cuenta arrastra el perfil (ON DELETE CASCADE) y evita
+        # que quede un usuario huerfano que aun pueda iniciar sesion.
+        self.users.delete(teacher.user)
