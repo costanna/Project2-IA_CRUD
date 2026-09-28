@@ -6,6 +6,7 @@ hardcodeado en el codigo fuente (requisito de Nivel Esencial: "Variables de
 entorno para datos sensibles").
 """
 
+import json
 from functools import lru_cache
 
 from pydantic import field_validator
@@ -43,8 +44,17 @@ class Settings(BaseSettings):
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 60
 
-    # CORS (frontend)
-    cors_origins: list[str] = ["http://localhost:5173"]
+    # CORS (frontend). Se guarda como texto porque pydantic-settings exige
+    # JSON para los campos de tipo lista, y en paneles como Render es facil
+    # pegar la URL sin corchetes. Se acepta JSON o URLs separadas por comas.
+    cors_origins: str = "http://localhost:5173"
+
+    @property
+    def cors_origin_list(self) -> list[str]:
+        value = self.cors_origins.strip()
+        if value.startswith("["):
+            return [str(origin).strip() for origin in json.loads(value)]
+        return [origin.strip() for origin in value.split(",") if origin.strip()]
 
     # Cache
     cache_ttl_seconds: int = 30
