@@ -13,6 +13,9 @@ from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
+DEFAULT_CORS_ORIGINS = "https://academia-f5.vercel.app,http://localhost:5173"
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
@@ -47,11 +50,13 @@ class Settings(BaseSettings):
     # CORS (frontend). Se guarda como texto porque pydantic-settings exige
     # JSON para los campos de tipo lista, y en paneles como Render es facil
     # pegar la URL sin corchetes. Se acepta JSON o URLs separadas por comas.
-    cors_origins: str = "http://localhost:5173"
+    # Si la variable llega vacia se usan los origenes por defecto (frontend
+    # desplegado en Vercel + Vite en local).
+    cors_origins: str = ""
 
     @property
     def cors_origin_list(self) -> list[str]:
-        value = self.cors_origins.strip()
+        value = self.cors_origins.strip() or DEFAULT_CORS_ORIGINS
         if value.startswith("["):
             try:
                 origins = [str(origin) for origin in json.loads(value)]
