@@ -53,8 +53,15 @@ class Settings(BaseSettings):
     def cors_origin_list(self) -> list[str]:
         value = self.cors_origins.strip()
         if value.startswith("["):
-            return [str(origin).strip() for origin in json.loads(value)]
-        return [origin.strip() for origin in value.split(",") if origin.strip()]
+            try:
+                origins = [str(origin) for origin in json.loads(value)]
+            except json.JSONDecodeError:
+                origins = value.strip("[]").split(",")
+        else:
+            origins = value.split(",")
+        # El navegador envia el origen sin comillas ni barra final.
+        cleaned = (origin.strip().strip("\"'").strip().rstrip("/") for origin in origins)
+        return [origin for origin in cleaned if origin]
 
     # Cache
     cache_ttl_seconds: int = 30
