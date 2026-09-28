@@ -135,7 +135,7 @@ Detalle completo de endpoints, roles y códigos de error en [docs/api.md](docs/a
 | Documentación de la API (Swagger) | `/docs` en el servidor + [docs/api.md](docs/api.md) |
 | Suite de tests completa y pasando | `backend/tests/` (79 tests, 97% cobertura) + `frontend/src/**/*.test.tsx` (12 tests) + `frontend/e2e/` (3 escenarios Playwright) |
 | Documento de retrospectiva | [docs/retrospective.md](docs/retrospective.md) |
-| Tablero Kanban con historias de usuario | [docs/kanban.md](docs/kanban.md) |
+| Tablero Kanban con historias de usuario | [GitHub Projects](https://github.com/users/costanna/projects/2) + [docs/kanban.md](docs/kanban.md) |
 | Gestión de equipo / roles / ceremonias | [docs/team.md](docs/team.md) |
 | Decisiones de arquitectura | [docs/adr/](docs/adr/) |
 | Guía de despliegue en la nube | [docs/deployment.md](docs/deployment.md) |
