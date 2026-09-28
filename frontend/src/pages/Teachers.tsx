@@ -1,18 +1,20 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { api, type Page, type Student } from "../api/client";
+import { api, type Page, type Teacher } from "../api/client";
 import { PasswordInput } from "../components/PasswordInput";
 import { useAuth } from "../context/AuthContext";
 
-export function Students() {
+const emptyForm = { email: "", password: "", first_name: "", last_name: "", specialty: "" };
+
+export function Teachers() {
   const { role } = useAuth();
-  const [page, setPage] = useState<Page<Student> | null>(null);
-  const [form, setForm] = useState({ email: "", password: "", first_name: "", last_name: "" });
+  const [page, setPage] = useState<Page<Teacher> | null>(null);
+  const [form, setForm] = useState(emptyForm);
   const [error, setError] = useState<string | null>(null);
 
   const canCreate = role === "admin";
 
   const load = async () => {
-    const { data } = await api.get<Page<Student>>("/students", { params: { skip: 0, limit: 50 } });
+    const { data } = await api.get<Page<Teacher>>("/teachers", { params: { skip: 0, limit: 50 } });
     setPage(data);
   };
 
@@ -24,22 +26,22 @@ export function Students() {
     event.preventDefault();
     setError(null);
     try {
-      await api.post("/students", form);
-      setForm({ email: "", password: "", first_name: "", last_name: "" });
+      await api.post("/teachers", { ...form, specialty: form.specialty || null });
+      setForm(emptyForm);
       await load();
     } catch {
-      setError("No se pudo crear el estudiante (revisa que el email no exista).");
+      setError("No se pudo crear el profesor (revisa que el email no exista).");
     }
   };
 
   const handleDelete = async (id: number) => {
-    await api.delete(`/students/${id}`);
+    await api.delete(`/teachers/${id}`);
     await load();
   };
 
   return (
     <div className="page">
-      <h1>Estudiantes</h1>
+      <h1>Profesores</h1>
 
       {canCreate && (
         <form className="stacked-form" onSubmit={handleCreate}>
@@ -68,7 +70,12 @@ export function Students() {
             value={form.last_name}
             onChange={(e) => setForm({ ...form, last_name: e.target.value })}
           />
-          <button type="submit">Crear estudiante</button>
+          <input
+            placeholder="Especialidad"
+            value={form.specialty}
+            onChange={(e) => setForm({ ...form, specialty: e.target.value })}
+          />
+          <button type="submit">Crear profesor</button>
         </form>
       )}
       {error && <p className="error">{error}</p>}
@@ -78,21 +85,21 @@ export function Students() {
           <tr>
             <th>ID</th>
             <th>Nombre</th>
-            <th>Telefono</th>
+            <th>Especialidad</th>
             {canCreate && <th />}
           </tr>
         </thead>
         <tbody>
-          {page?.items.map((s) => (
-            <tr key={s.id}>
-              <td>{s.id}</td>
+          {page?.items.map((t) => (
+            <tr key={t.id}>
+              <td>{t.id}</td>
               <td>
-                {s.first_name} {s.last_name}
+                {t.first_name} {t.last_name}
               </td>
-              <td>{s.phone ?? "-"}</td>
+              <td>{t.specialty ?? "-"}</td>
               {canCreate && (
                 <td>
-                  <button onClick={() => handleDelete(s.id)}>Borrar</button>
+                  <button onClick={() => handleDelete(t.id)}>Borrar</button>
                 </td>
               )}
             </tr>

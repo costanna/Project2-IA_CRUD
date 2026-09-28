@@ -8,6 +8,7 @@ import { Enrollments } from "./pages/Enrollments";
 import { Grades } from "./pages/Grades";
 import { Login } from "./pages/Login";
 import { Students } from "./pages/Students";
+import { Teachers } from "./pages/Teachers";
 
 export default function App() {
   return (
@@ -40,6 +41,16 @@ export default function App() {
             <ProtectedRoute roles={["admin", "teacher"]}>
               <Layout>
                 <Students />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/teachers"
+          element={
+            <ProtectedRoute roles={["admin", "teacher"]}>
+              <Layout>
+                <Teachers />
               </Layout>
             </ProtectedRoute>
           }

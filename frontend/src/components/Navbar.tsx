@@ -17,6 +17,7 @@ export function Navbar() {
         <NavLink to="/dashboard">Dashboard</NavLink>
         <NavLink to="/courses">Cursos</NavLink>
         {(role === "admin" || role === "teacher") && <NavLink to="/students">Estudiantes</NavLink>}
+        {(role === "admin" || role === "teacher") && <NavLink to="/teachers">Profesores</NavLink>}
         <NavLink to="/enrollments">Matriculas</NavLink>
         <NavLink to="/grades">Notas</NavLink>
       </div>
