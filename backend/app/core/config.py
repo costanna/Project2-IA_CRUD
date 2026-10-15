@@ -80,6 +80,14 @@ class Settings(BaseSettings):
     # Logging
     log_level: str = "INFO"
 
+    # Keep-awake estilo woke-dyno para el plan gratuito de Render (duerme
+    # tras ~15 min sin tráfico entrante). Un hilo pide la URL pública cada
+    # N min. Apagado por defecto: actívalo en producción con la URL real.
+    # Despierto 24/7 gasta ~720 h/mes de las 750 h gratuitas (un servicio).
+    keep_awake_enabled: bool = False
+    keep_awake_url: str = ""
+    keep_awake_minutes: int = 10
+
 
 @lru_cache
 def get_settings() -> Settings:

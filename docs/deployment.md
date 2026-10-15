@@ -79,6 +79,13 @@ Service**.
 > trafico; la primera petición tras dormir tarda ~30-50s en responder
 > (cold start). Antes de una presentación en vivo, abre la URL de
 > `/health` unos minutos antes para "despertarlo".
+>
+> **Keep-awake integrado (estilo woke-dyno, sin servicios extra):** con
+> `KEEP_AWAKE_ENABLED=true` y `KEEP_AWAKE_URL=https://academia-f5-api.onrender.com/health`
+> (tu URL real + `/health`), un hilo interno la pide cada `KEEP_AWAKE_MINUTES`
+> (10) y el servicio no se duerme nunca. Despierto 24/7 gasta ~720 h/mes de
+> las 750 h gratuitas: vale para un solo servicio; con más servicios en
+> Render, apágalo (`false`).
 
 ## 3. Vercel — frontend (React + Vite)
 

@@ -9,6 +9,7 @@ from app.core.logging_config import configure_logging, logger
 from app.db.session import Base, engine
 from app.exceptions import AppError, app_error_handler, unhandled_exception_handler
 from app.routers import auth, courses, enrollments, grades, schedules, students, teachers, ws
+from app.services.keep_awake import keep_awake_configured, start_keep_awake
 
 configure_logging()
 
@@ -19,6 +20,9 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     # `alembic upgrade head` antes de arrancar. `create_all` queda como red
     # de seguridad para entornos de desarrollo/tests sin migraciones.
     Base.metadata.create_all(bind=engine)
+    # Keep-awake estilo woke-dyno (solo si keep_awake_enabled + keep_awake_url).
+    if keep_awake_configured(settings.keep_awake_enabled, settings.keep_awake_url):
+        start_keep_awake(settings.keep_awake_url, settings.keep_awake_minutes)
     logger.info("%s iniciada en entorno '%s'", settings.app_name, settings.environment)
     if settings.cors_origin_list:
         logger.info("CORS permitido para: %s", ", ".join(settings.cors_origin_list))
